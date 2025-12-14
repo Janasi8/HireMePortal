@@ -1,0 +1,216 @@
+<div id="dashboard" class="space-y-8 app-tab-content">
+    
+    <!-- User Greeting Header -->
+    <div class="p-8 text-center bg-white rounded-2xl border border-indigo-300 shadow-xl">
+        <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Your Career Dashboard</h2>
+        <p class="text-gray-600 text-lg">Track your resume activity and explore companies.</p>
+        <p class="text-sm font-medium text-indigo-600 mt-2">Logged in as: <span id="currentUsernameDisplay"></span> <span id="dashboardUserId" class="text-gray-500"></span></p>
+    </div>
+
+    <!-- Main Dashboard Content Wrapper -->
+    <div id="dashboardContent" class="space-y-8">
+        <!-- Main Navigation / Status Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- 1. Resume Status Card (Clickable summary) -->
+            <div id="resumeStatusCard" onclick="document.getElementById('resumeManagerSection').scrollIntoView({ behavior: 'smooth' })" class="p-6 bg-yellow-50 rounded-xl border border-yellow-300 shadow-md cursor-pointer hover:shadow-lg transition duration-200 transform hover:scale-[1.01]">
+                <h3 class="text-xl font-bold text-yellow-700 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                        <path fill-rule="evenodd" d="M19.5 7.5a3 3 0 0 0-3-3h-8.25a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9ZM8.25 6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V6Z" clip-rule="evenodd" />
+                        <path d="M16.5 7.5h-9a.75.75 0 0 0-.75.75v6a.75.75 0 0 0 .75.75h9a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-.75-.75Z" />
+                    </svg>
+                    Resume Status
+                </h3>
+                <div id="resumeStatusContent" class="text-sm text-gray-600 space-y-2">
+                    <p>Status: <span id="currentResumeStatus" class="font-bold text-red-600">Not Uploaded</span></p>
+                    <p>File: <span id="currentFilenameSummary">N/A</span></p>
+                    <p>Last Update: <span id="currentUploadTimeSummary">N/A</span></p>
+                </div>
+                <p class="mt-4 text-xs text-yellow-800 font-medium">Click to manage your file.</p>
+            </div>
+
+            <!-- 2. Profile Views Counter (Simulated) -->
+            <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-md">
+                <h3 class="text-xl font-bold text-gray-700 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2 text-green-600">
+                        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                        <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.972 0 9.187 3.223 10.675 7.697a1.75 1.75 0 0 1 0 1.056c-1.487 4.475-5.702 7.697-10.675 7.697-4.973 0-9.188-3.223-10.675-7.697a1.75 1.75 0 0 1 0-1.056ZM12 17.25a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Z" clip-rule="evenodd" />
+                    </svg>
+                    Profile Views
+                </h3>
+                <p class="text-5xl font-extrabold text-green-600">
+                    <span id="viewCount">24</span>
+                </p>
+                <p class="text-sm text-gray-500 mt-2">Companies checked your profile this month.</p>
+            </div>
+
+            <!-- 3. Quick Navigation -->
+            <div class="p-6 bg-indigo-50 rounded-xl border border-indigo-300 shadow-md">
+                <h3 class="text-xl font-bold text-indigo-700 mb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                        <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                        <path fill-rule="evenodd" d="M19.03 8.22a.75.75 0 0 0 0 1.06l-6.22 6.22a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06.75.75 0 0 1 1.06 0l1.72 1.72 5.69-5.69a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd" d="M8.686 1.734A9 9 0 0 0 1.947 8.35c.427 1.062 1.084 2.115 1.97 3.01.62.63.754 1.5.392 2.216l-.804 1.554a.75.75 0 0 0 1.087 1.026l1.554-.804c.716-.362 1.586-.228 2.216.392.895.886 1.948 1.543 3.01 1.97A9 9 0 0 0 20.265 8.686a9 9 0 0 0-8.58-6.952.75.75 0 0 0-.689.673Z" clip-rule="evenodd" />
+                    </svg>
+                    Quick Actions
+                </h3>
+                <div class="space-y-3 mt-4">
+                    <button onclick="switchTab('address')" class="w-full py-2 px-4 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 text-sm font-medium">
+                        Manage Shipping Addresses
+                    </button>
+                    <button onclick="switchTab('checkout')" class="w-full py-2 px-4 bg-purple-600 text-white rounded-lg shadow-md hover:bg-purple-700 transition duration-150 text-sm font-medium">
+                        Simulate Order Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="my-8 border-gray-200">
+
+        <!-- RESUME MANAGER SECTION (Integrated into Dashboard) -->
+        <div id="resumeManagerSection" class="p-8 bg-white rounded-2xl shadow-xl border border-yellow-400/50 space-y-6">
+            <h3 class="text-2xl font-bold text-yellow-800 border-b pb-3 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                    <path fill-rule="evenodd" d="M19.5 7.5a3 3 0 0 0-3-3h-8.25a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9Z" clip-rule="evenodd" />
+                    <path d="M8.25 6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V6Z" />
+                </svg>
+                Resume Upload & Viewer
+            </h3>
+            <div id="resumeMessage" class="mt-2 p-3 bg-gray-100 rounded-lg text-sm font-medium hidden"></div>
+
+            <!-- Upload Form (Always visible, as desired) -->
+            <form id="resumeUploadForm" class="space-y-4 p-5 border border-yellow-200 rounded-xl bg-yellow-50 shadow-inner" onsubmit="handleResumeUpload(event)">
+                <h4 class="text-xl font-semibold text-gray-700">Upload New Resume (.PDF, .DOC, .DOCX)</h4>
+                <label for="resumeFile" class="block text-sm font-medium text-gray-700">Select File (Max 5MB):</label>
+                <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm">
+                
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-150">
+                    Upload & Replace Current Resume
+                </button>
+            </form>
+
+            <!-- Current Resume Info & Viewer Controls (Hidden if no resume is uploaded) -->
+            <div id="currentResumeInfo" class="space-y-4 p-5 border border-gray-200 rounded-xl bg-white shadow-sm hidden">
+                <h4 class="text-xl font-semibold text-gray-700">Preview & Download</h4>
+                <div class="flex space-x-4">
+                    <button id="viewResumeBtn" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-150 hidden">
+                        View Resume in Browser
+                    </button>
+                    <button id="downloadResumeBtn" class="py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 hidden">
+                        Download File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Viewer Section (Hidden by default, shown when 'View' is clicked) -->
+            <div id="resumeViewerContainer" class="hidden">
+                <p class="text-sm font-medium text-gray-700 mb-2">Resume Preview (Streamed from Server):</p>
+                <embed id="resumeViewer" src="" class="full-screen-viewer" type="application/pdf">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialization function called after the HTML is loaded
+    function initDashboard() {
+        // Update user display names
+        document.getElementById('currentUsernameDisplay').textContent = currentUsername;
+        document.getElementById('dashboardUserId').textContent = `(ID: ${currentUserId})`;
+        
+        // Attach form handler
+        const resumeUploadForm = document.getElementById('resumeUploadForm');
+        if (resumeUploadForm) {
+            resumeUploadForm.addEventListener('submit', handleResumeUpload);
+        }
+
+        // Fetch and update resume status on load
+        updateDashboardResumeSection(currentUserId);
+    }
+    
+    // NOTE: This function is defined in index.html, but included here for reference/testing consistency.
+    window.updateDashboardResumeSection = async function(userID) {
+        const statusSpan = document.getElementById('currentResumeStatus');
+        const filenameSpan = document.getElementById('currentFilenameSummary');
+        const uploadTimeSpan = document.getElementById('currentUploadTimeSummary');
+        const infoDiv = document.getElementById('currentResumeInfo');
+        const viewBtn = document.getElementById('viewResumeBtn');
+        const downloadBtn = document.getElementById('downloadResumeBtn');
+        const viewerContainer = document.getElementById('resumeViewerContainer');
+        const viewer = document.getElementById('resumeViewer');
+
+        if (!userID) {
+            statusSpan.textContent = "N/A";
+            return;
+        }
+
+        statusSpan.textContent = "Checking...";
+        viewBtn.classList.add('hidden');
+        downloadBtn.classList.add('hidden');
+        viewerContainer.classList.add('hidden'); // Ensure viewer is hidden
+        infoDiv.classList.add('hidden'); // Hide info controls while checking
+
+        try {
+            const response = await fetch(`${API_URL}/resume/${userID}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                // Resume found: Show info/preview controls
+                statusSpan.textContent = "Uploaded";
+                statusSpan.classList.replace('text-red-600', 'text-green-600');
+                filenameSpan.textContent = data.filename;
+                uploadTimeSpan.textContent = data.uploaded_at ? new Date(data.uploaded_at).toLocaleDateString() : 'N/A';
+                
+                infoDiv.classList.remove('hidden'); // SHOW Preview/Download controls
+                viewBtn.classList.remove('hidden');
+                downloadBtn.classList.remove('hidden');
+
+                const downloadUrl = API_URL + data.download_url;
+                
+                // Set up event listeners for the downloaded/viewed file
+                viewBtn.onclick = () => {
+                    // Toggle visibility
+                    if (viewerContainer.classList.contains('hidden')) {
+                        viewer.src = downloadUrl;
+                        viewerContainer.classList.remove('hidden');
+                        viewBtn.textContent = 'Hide Preview';
+                    } else {
+                        viewerContainer.classList.add('hidden');
+                        viewBtn.textContent = 'View Resume in Browser';
+                    }
+                };
+                downloadBtn.onclick = () => window.open(downloadUrl, '_blank');
+
+            } else {
+                // Resume Not Found (e.g., HTTP 404 or empty data): Hide info/preview controls
+                currentResumeStatus.textContent = "Not Uploaded";
+                currentResumeStatus.classList.replace('text-green-600', 'text-red-600');
+                filenameSpan.textContent = "None";
+                uploadTimeSpan.textContent = "N/A";
+                
+                infoDiv.classList.add('hidden'); // HIDE Preview/Download controls
+                viewerContainer.classList.add('hidden'); // HIDE the viewer itself
+                
+                // Clear any leftover download/view handlers
+                viewBtn.onclick = null;
+                downloadBtn.onclick = null;
+                
+                // NOTE: We rely on the global message in index.html to be cleared 
+                // when the dashboard loads, so we don't spam it here, 
+                // but the status in the card is correct.
+            }
+        } catch (error) {
+            // Critical error (CORS, network)
+            console.error('Resume status check error:', error);
+            currentResumeStatus.textContent = "Error";
+            currentResumeStatus.classList.replace('text-green-600', 'text-red-600');
+            filenameSpan.textContent = "N/A";
+            uploadTimeSpan.textContent = "N/A";
+            infoDiv.classList.add('hidden');
+            viewerContainer.classList.add('hidden');
+            // NOTE: We rely on the global message in index.html to be cleared 
+            // when the dashboard loads, so we don't spam it here, 
+            // but the status in the card is correct.
+        }
+    }
+</script>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
+        .form-container, .dashboard-section { max-width: 800px; margin: 2rem auto; }
+    </style>
+</head>
+<body>
+
+    <div class="container mx-auto p-4">
+
+        <div id="login-container" class="form-container p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+            <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Admin Login</h1>
+            <form id="admin-login-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="username" name="username" value="admin" required class="mt-1 block w-full p-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" value="password" required class="mt-1 block w-full p-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm mb-4 text-center hidden">Invalid username or password.</p>
+                <button type="submit" class="w-full py-3 px-6 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700">Log In</button>
+            </form>
+        </div>
+
+        <div id="dashboard-container" class="dashboard-section hidden">
+            <nav class="bg-white p-4 rounded-2xl shadow-xl border border-gray-400/50 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">Admin Panel</h2>
+                <div class="relative">
+                    <button id="menu-button" class="py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700">Menu</button>
+                    <div id="menu-dropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-2xl hidden z-10">
+                        <a href="#" id="menu-home" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Dashboard Home</a>
+                        <a href="#" id="menu-subscriptions" class="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white">Subscription Management</a>
+                        <div class="border-t border-gray-100"></div>
+                        <a href="#" id="menu-logout" class="block px-4 py-2 text-red-600 hover:bg-red-500 hover:text-white">Logout</a>
+                    </div>
+                </div>
+            </nav>
+
+            <main id="main-content" class="mt-8">
+                <div id="home-section" class="space-y-8">
+                     <div class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+                        <h3 class="text-3xl font-bold text-gray-800">Welcome, Admin!</h3>
+                        <p class="mt-2 text-gray-600">Here is a summary of recent subscription activity.</p>
+                     </div>
+                    <div id="analytics-container" class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Subscription Analytics</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <label for="subscription-filter" class="block text-sm font-medium text-gray-700 mb-1">Search by Subscription Type</label>
+                            <select id="subscription-filter" class="w-full p-2 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="" disabled selected>-- Select a Plan to Search --</option>
+                                <option value="all">All Subscriptions</option>
+                            </select>
+                        </div>
+                        <div id="analytics-results-container" class="hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                    <h4 class="text-lg font-semibold text-blue-800">Purchase Rate</h4>
+                                    <p id="purchase-rate" class="text-2xl font-bold text-blue-900 mt-2">--</p>
+                                    <p class="text-sm text-blue-700">over the last 30 days</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                    <h4 class="text-lg font-semibold text-green-800">Top Locations</h4>
+                                    <ol id="top-locations" class="list-decimal list-inside mt-2 text-green-900"><li>--</li></ol>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-2">Subscribed Users</h4>
+                                <div id="subscriber-list" class="mt-4 space-y-2 max-h-80 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subscription-dashboard-section" class="space-y-8 hidden">
+                    <div id="plan-management-actions" class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50 hidden">
+                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Subscription Plan Management</h3>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                            <button id="show-custom-plan-btn" class="flex-1 py-3 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700">Create Job Seeker/Company Plan</button>
+                            <button id="show-advertiser-plan-btn" class="flex-1 py-3 px-6 bg-teal-600 text-white font-semibold rounded-lg shadow-md hover:bg-teal-700">Create Advertiser Plan</button>
+                        </div>
+                    </div>
+
+                    <div id="generation-form-container" class="w-full p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50 hidden">
+                        <h3 class="text-3xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Create Custom Plan</h3>
+                        <form id="subscription-form" class="space-y-6">
+                             <div>
+                                <label class="block text-base font-semibold text-gray-800 mb-2">1. User Type</label>
+                                <div class="flex items-center space-x-6 bg-gray-50 p-3 rounded-lg"><label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="user_type" value="jobseeker" class="h-4 w-4 text-indigo-600" checked><span>Job Seeker</span></label><label class="flex items-center space-x-2 cursor-pointer"><input type="radio" name="user_type" value="company" class="h-4 w-4 text-indigo-600"><span>Company</span></label></div>
+                            </div>
+                            <div><label for="subscription-name" class="block text-base font-semibold text-gray-800">2. Subscription Name</label><input type="text" id="subscription_name" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., Premium Plan" required></div>
+                            <div><label for="subscription-duration" class="block text-base font-semibold text-gray-800">3. Duration (days)</label><input type="number" id="subscription_duration" min="1" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., 30" required></div>
+                            <div><label for="plan-amount" class="block text-base font-semibold text-gray-800">4. Plan Amount ($)</label><input type="number" id="plan_amount" min="0" step="0.01" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., 25.00" required></div>
+                            <div>
+                                <label for="plan-status" class="block text-base font-semibold text-gray-800">5. Plan Status</label>
+                                <select id="plan-status" class="mt-2 block w-full p-3 border rounded-md bg-white">
+                                    <option value="OPEN" selected>Open</option>
+                                    <option value="PAUSED">Paused</option>
+                                    <option value="CLOSED">Closed</option>
+                                </select>
+                            </div>
+                            <div id="jobseeker-fields">
+                                <label class="block text-base font-semibold text-gray-800">5. Number of Job Applies</label>
+                                <div class="flex items-center space-x-4 mt-2"><input type="number" id="job_applies" min="0" class="block w-full p-3 border rounded-md" placeholder="e.g., 50" required><label class="flex items-center space-x-2 whitespace-nowrap"><input type="checkbox" data-target="job-applies" class="unlimited-checkbox h-4 w-4"><span>Unlimited</span></label></div>
+                            </div>
+                            <div id="company-fields" class="hidden space-y-6">
+                                <div><label class="block text-base font-semibold text-gray-800">5. Job Postings</label><div class="flex items-center space-x-4 mt-2"><input type="number" id="job_postings" min="0" class="block w-full p-3 border rounded-md" placeholder="e.g., 10"><label class="flex items-center space-x-2 whitespace-nowrap"><input type="checkbox" data-target="job-postings" class="unlimited-checkbox h-4 w-4"><span>Unlimited</span></label></div></div>
+                                <div><label class="block text-base font-semibold text-gray-800">6. Resume Visits</label><div class="flex items-center space-x-4 mt-2"><input type="number" id="resume_visits" min="0" class="block w-full p-3 border rounded-md" placeholder="e.g., 100"><label class="flex items-center space-x-2 whitespace-nowrap"><input type="checkbox" data-target="resume-visits" class="unlimited-checkbox h-4 w-4"><span>Unlimited</span></label></div></div>
+                            </div>
+                            <div class="pt-4 flex space-x-4"><button type="submit" class="flex-1 py-3 px-6 bg-green-600 text-white font-semibold rounded-lg">Create Plan</button><button type="button" id="cancel-btn" class="flex-1 py-3 px-6 bg-gray-400 text-white font-semibold rounded-lg">Cancel</button></div>
+                        </form>
+                    </div>
+
+                    <div id="advertiser-form-container" class="w-full p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50 hidden">
+                        <h3 class="text-3xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Create Advertiser Plan</h3>
+                        <form id="advertiser-form" class="space-y-6">
+                            <div><label for="advertiser-subscription-name" class="block text-base font-semibold text-gray-800">1. Subscription Name</label><input type="text" id="advertiser-subscription-name" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., Local Boost" required></div>
+                            <div><label for="ad-radius" class="block text-base font-semibold text-gray-800">2. Ad Radius (km)</label><input type="number" id="ad-radius" min="1" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., 10" required></div>
+                            <div><label for="ad-duration" class="block text-base font-semibold text-gray-800">3. Ad Duration (days)</label><input type="number" id="ad-duration" min="1" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., 30" required></div>
+                            <div><label for="ad-plan-amount" class="block text-base font-semibold text-gray-800">4. Plan Amount ($)</label><input type="number" id="ad-plan-amount" min="0" step="0.01" class="mt-2 block w-full p-3 border rounded-md" placeholder="e.g., 50.00" required></div>
+                            <div>
+                                <label for="advertiser-plan-status" class="block text-base font-semibold text-gray-800">5. Plan Status</label>
+                                <select id="advertiser-plan-status" class="mt-2 block w-full p-3 border rounded-md bg-white">
+                                    <option value="OPEN" selected>Open</option>
+                                    <option value="PAUSED">Paused</option>
+                                    <option value="CLOSED">Closed</option>
+                                </select>
+                            </div>
+                            <div class="pt-4 flex space-x-4"><button type="submit" class="flex-1 py-3 px-6 bg-green-600 text-white font-semibold rounded-lg">Create Plan</button><button type="button" id="cancel-advertiser-btn" class="flex-1 py-3 px-6 bg-gray-400 text-white font-semibold rounded-lg">Cancel</button></div>
+                        </form>
+                    </div>
+
+                    <div id="jobseeker-plans-container" class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Existing Job Seeker Plans</h3>
+                        <div id="jobseeker-plans-list" class="space-y-4"></div>
+                    </div>
+                    <div id="company-plans-container" class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Existing Company Plans</h3>
+                        <div id="company-plans-list" class="space-y-4"></div>
+                    </div>
+                    <div id="advertiser-plans-container" class="p-8 bg-white rounded-2xl shadow-xl border border-gray-400/50">
+                        <h3 class="text-2xl font-bold text-gray-800 border-b pb-3 mb-4">Existing Advertiser Plans</h3>
+                        <div id="advertiser-plans-list" class="space-y-4"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM ELEMENTS ---
+        const API_URL = 'http://localhost:8080';
+        let currentUserId = localStorage.getItem('currentUserId') ? parseInt(localStorage.getItem('currentUserId')) : null;
+        let currAuth = localStorage.getItem('auth') || null;
+        let currRole = localStorage.getItem('role') || null;
+        const loginContainer = document.getElementById('login-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('admin-login-form');
+        const loginError = document.getElementById('login-error');
+        const menuButton = document.getElementById('menu-button');
+        const menuDropdown = document.getElementById('menu-dropdown');
+        const menuHome = document.getElementById('menu-home');
+        const menuSubscriptions = document.getElementById('menu-subscriptions');
+        const menuLogout = document.getElementById('menu-logout'); 
+        const homeSection = document.getElementById('home-section');
+        const subscriptionDashboardSection = document.getElementById('subscription-dashboard-section');
+        const subscriptionFilter = document.getElementById('subscription-filter');
+        const analyticsResultsContainer = document.getElementById('analytics-results-container');
+        const purchaseRateEl = document.getElementById('purchase-rate');
+        const topLocationsEl = document.getElementById('top-locations');
+        const subscriberListEl = document.getElementById('subscriber-list');
+        const planManagementActions = document.getElementById('plan-management-actions');
+        const jobseekerPlansContainer = document.getElementById('jobseeker-plans-container');
+        const companyPlansContainer = document.getElementById('company-plans-container');
+        const advertiserPlansContainer = document.getElementById('advertiser-plans-container');
+        const jobseekerPlansList = document.getElementById('jobseeker-plans-list');
+        const companyPlansList = document.getElementById('company-plans-list');
+        const advertiserPlansList = document.getElementById('advertiser-plans-list');
+        const showCustomPlanBtn = document.getElementById('show-custom-plan-btn');
+        const showAdvertiserPlanBtn = document.getElementById('show-advertiser-plan-btn');
+        const generationFormContainer = document.getElementById('generation-form-container');
+        const advertiserFormContainer = document.getElementById('advertiser-form-container');
+        const subscriptionForm = document.getElementById('subscription-form');
+        const advertiserForm = document.getElementById('advertiser-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelAdvertiserBtn = document.getElementById('cancel-advertiser-btn');
+
+        // --- DUMMY DATA --- (For analytics example)
+        const allSubscriptions = [{
+            userId: 1,
+            username: 'alice',
+            planName: 'Pro Seeker',
+            purchaseDate: '2025-10-01',
+            location: 'Gurugram'
+        }, {
+            userId: 2,
+            username: 'bob_corp',
+            planName: 'Startup Hire',
+            purchaseDate: '2025-10-02',
+            location: 'Delhi'
+        }, {
+            userId: 3,
+            username: 'charlie',
+            planName: 'Basic Seeker',
+            purchaseDate: '2025-10-05',
+            location: 'Noida'
+        }, {
+            userId: 4,
+            username: 'diana_inc',
+            planName: 'Startup Hire',
+            purchaseDate: '2025-10-08',
+            location: 'Gurugram'
+        }];
+
+        // --- DATA FETCHING & RENDERING ---
+        async function renderJobseekerPlans() {
+            try {
+                const response = await fetch(`${API_URL}/plans/jobseeker`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const plans = await response.json();
+                jobseekerPlansList.innerHTML = '';
+                if (!plans || plans.length === 0) {
+                    jobseekerPlansList.innerHTML = '<p class="text-gray-500">No job seeker plans found.</p>';
+                    return;
+                }
+                plans.forEach(plan => {
+                    const status = plan.status || 'OPEN'; // Default to OPEN if status is missing
+                    const statusColor = status === 'OPEN' ? 'bg-green-100 text-green-800' : status === 'PAUSED' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+                    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+                    jobseekerPlansList.innerHTML += `
+                        <div class="p-4 bg-gray-50 border rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center">
+                                <div>
+                                    <div class="flex items-center space-x-3">
+                                        <h4 class="text-lg font-bold text-gray-800">${plan.name}</h4>
+                                        <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor}">${statusText}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <strong>Duration:</strong> ${plan.duration} days | 
+                                        <strong>Price:</strong> $${plan.amount} | 
+                                        <strong>Applies:</strong> ${plan.applies === -1 ? 'Unlimited' : plan.applies}
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2 mt-3 sm:mt-0">
+                                    <button class="py-1 px-3 bg-yellow-500 text-white rounded-md">Edit</button>
+                                    <button class="py-1 px-3 bg-red-500 text-white rounded-md">Delete</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error('Failed to fetch job seeker plans:', error);
+                jobseekerPlansList.innerHTML = '<p class="text-red-500">Error: Could not load plans.</p>';
+            }
+        }
+
+        async function renderCompanyPlans() {
+            try {
+                const response = await fetch(`${API_URL}/plans/company`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const plans = await response.json();
+                companyPlansList.innerHTML = '';
+                if (!plans || plans.length === 0) {
+                    companyPlansList.innerHTML = '<p class="text-gray-500">No company plans found.</p>';
+                    return;
+                }
+                plans.forEach(plan => {
+                    const status = plan.status || 'OPEN';
+                    const statusColor = status === 'OPEN' ? 'bg-green-100 text-green-800' : status === 'PAUSED' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+                    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+                    companyPlansList.innerHTML += `
+                        <div class="p-4 bg-gray-50 border rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center">
+                                <div>
+                                    <div class="flex items-center space-x-3">
+                                        <h4 class="text-lg font-bold text-gray-800">${plan.name}</h4>
+                                        <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor}">${statusText}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <strong>Duration:</strong> ${plan.duration} days | 
+                                        <strong>Price:</strong> $${plan.amount} <br>
+                                        <strong>Posts:</strong> ${plan.postings === -1 ? 'Unlimited' : plan.postings} | 
+                                        <strong>Visits:</strong> ${plan.resumeVisits === -1 ? 'Unlimited' : plan.resumeVisits}
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2 mt-3 sm:mt-0">
+                                    <button class="py-1 px-3 bg-yellow-500 text-white rounded-md">Edit</button>
+                                    <button class="py-1 px-3 bg-red-500 text-white rounded-md">Delete</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error('Failed to fetch company plans:', error);
+                companyPlansList.innerHTML = '<p class="text-red-500">Error: Could not load plans.</p>';
+            }
+        }
+
+        // =======================================================
+        // === NEW: FUNCTION TO RENDER ADVERTISER PLANS ===
+        // =======================================================
+        async function renderAdvertiserPlans() {
+            try {
+                const response = await fetch(`${API_URL}/plans/advertiser`);
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                const plans = await response.json();
+                advertiserPlansList.innerHTML = '';
+                if (!plans || plans.length === 0) {
+                    advertiserPlansList.innerHTML = '<p class="text-gray-500">No advertiser plans found.</p>';
+                    return;
+                }
+                plans.forEach(plan => {
+                    const status = plan.status || 'OPEN';
+                    const statusColor = status === 'OPEN' ? 'bg-green-100 text-green-800' : status === 'PAUSED' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+                    const statusText = status.charAt(0) + status.slice(1).toLowerCase();
+                    advertiserPlansList.innerHTML += `
+                        <div class="p-4 bg-gray-50 border rounded-lg shadow-sm">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center">
+                                <div>
+                                    <div class="flex items-center space-x-3">
+                                        <h4 class="text-lg font-bold text-gray-800">${plan.name}</h4>
+                                        <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor}">${statusText}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        <strong>Radius:</strong> ${plan.ad_radius} km | 
+                                        <strong>Duration:</strong> ${plan.ad_duration} days | 
+                                        <strong>Price:</strong> $${plan.amount}
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2 mt-3 sm:mt-0">
+                                    <button class="py-1 px-3 bg-yellow-500 text-white rounded-md">Edit</button>
+                                    <button class="py-1 px-3 bg-red-500 text-white rounded-md">Delete</button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error('Failed to fetch advertiser plans:', error);
+                advertiserPlansList.innerHTML = '<p class="text-red-500">Error: Could not load plans.</p>';
+            }
+        }
+        // =======================================================
+
+        async function populateSubscriptionFilter() {
+            try {
+                const [jobseekerRes, companyRes, advertiserRes] = await Promise.all([
+                    fetch(`${API_URL}/plans/jobseeker`),
+                    fetch(`${API_URL}/plans/company`),
+                    fetch(`${API_URL}/plans/advertiser`)
+                ]);
+                if (!jobseekerRes.ok || !companyRes.ok || !advertiserRes.ok) {
+                    throw new Error('Failed to fetch one or more plan types.');
+                }
+                const jobseekerPlans = await jobseekerRes.json() || [];
+                const companyPlans = await companyRes.json() || [];
+                const advertiserPlans = await advertiserRes.json() || [];
+                const allPlans = [...jobseekerPlans, ...companyPlans, ...advertiserPlans];
+                const planNames = new Set(allPlans.map(plan => plan.name));
+                subscriptionFilter.innerHTML = `
+                    <option value="" disabled selected>-- Select a Plan to Search --</option>
+                    <option value="all">All Subscriptions</option>
+                `;
+                planNames.forEach(name => {
+                    subscriptionFilter.innerHTML += `<option value="${name}">${name}</option>`;
+                });
+            } catch (error) {
+                console.error('Failed to populate subscription filter:', error);
+                subscriptionFilter.innerHTML = '<option value="">Error loading plans</option>';
+            }
+        }
+        
+        // --- DASHBOARD ANALYTICS ---
+        window.updateAnalyticsDashboard = async function() {
+            const selectedPlan = subscriptionFilter.value;
+            if (!selectedPlan) return;
+            analyticsResultsContainer.classList.remove('hidden');
+            const filteredSubs = allSubscriptions.filter(sub => selectedPlan === 'all' || sub.planName === selectedPlan);
+            const today = new Date('2025-10-12T17:20:54');
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            const recentSubs = filteredSubs.filter(sub => new Date(sub.purchaseDate) >= thirtyDaysAgo);
+            purchaseRateEl.textContent = `${(recentSubs.length / 30).toFixed(2)} purchases/day`;
+            const locationCounts = filteredSubs.reduce((acc, sub) => {
+                acc[sub.location] = (acc[sub.location] || 0) + 1;
+                return acc;
+            }, {});
+            const sortedLocations = Object.entries(locationCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            topLocationsEl.innerHTML = sortedLocations.length > 0 ? sortedLocations.map(([loc, count]) => `<li>${loc} (${count} subs)</li>`).join('') : '<li>No location data.</li>';
+            subscriberListEl.innerHTML = filteredSubs.length > 0 ? filteredSubs.map(sub => `<div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg text-sm"><div><p class="font-bold">${sub.username}</p><p class="text-gray-600">${sub.planName}</p></div><p class="text-gray-500">${sub.location} - ${sub.purchaseDate}</p></div>`).join('') : '<p class="text-gray-500">No subscribers found.</p>';
+        };
+
+        // --- INITIALIZATION & NAVIGATION LOGIC ---
+        const showDashboard = async (role) => {
+            loginContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+            homeSection.classList.remove('hidden');
+            subscriptionDashboardSection.classList.add('hidden');
+
+            // Show management buttons only for full-access admins
+            if (role === 'all') {
+                planManagementActions.classList.remove('hidden');
+            } else {
+                planManagementActions.classList.add('hidden');
+            }
+
+            await renderJobseekerPlans();
+            await renderCompanyPlans();
+            await renderAdvertiserPlans()
+            await populateSubscriptionFilter();
+        };
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            try {
+                const response = await fetch(`${API_URL}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_name: username, password: password })
+                });
+                const data = await response.json();
+                if (response.ok && data.status === 'success' && data.user_id) {
+                    localStorage.setItem('currentUserId', data.user_id);
+                    localStorage.setItem('role', data.role);
+                    showDashboard(data.role);
+                } else {
+                    throw new Error(data.message || 'Invalid username or password.');
+                }
+            } catch (error) {
+                loginError.textContent = error.message;
+                loginError.classList.remove('hidden');
+            }
+        });
+        // === NEW: LOGOUT FUNCTIONALITY ===
+        menuLogout.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('currentUserId');
+            localStorage.removeItem('role');
+            location.reload();
+        });
+        menuButton.addEventListener('click', () => menuDropdown.classList.toggle('hidden'));
+        menuHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            homeSection.classList.remove('hidden');
+            subscriptionDashboardSection.classList.add('hidden');
+            menuDropdown.classList.add('hidden');
+        });
+        menuSubscriptions.addEventListener('click', (e) => {
+            e.preventDefault();
+            homeSection.classList.add('hidden');
+            subscriptionDashboardSection.classList.remove('hidden');
+            menuDropdown.classList.add('hidden');
+        });
+        document.addEventListener('click', (e) => {
+            if (!menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+                menuDropdown.classList.add('hidden');
+            }
+        });
+
+        // --- FORM MANAGEMENT ---
+        const showSubscriptionManagementDetails = () => [planManagementActions, jobseekerPlansContainer, companyPlansContainer, advertiserPlansContainer].forEach(el => el.classList.remove('hidden'));
+        const hideSubscriptionManagementDetails = () => [planManagementActions, jobseekerPlansContainer, companyPlansContainer, advertiserPlansContainer].forEach(el => el.classList.add('hidden'));
+ 
+        showCustomPlanBtn.addEventListener('click', () => {
+            hideSubscriptionManagementDetails();
+            generationFormContainer.classList.remove('hidden');
+        });
+        showAdvertiserPlanBtn.addEventListener('click', () => {
+            hideSubscriptionManagementDetails();
+            advertiserFormContainer.classList.remove('hidden');
+        });
+
+    // ### FIXED: THIS FUNCTION NOW DISABLES HIDDEN INPUTS TO PREVENT VALIDATION ERRORS ###
+        function toggleFields(userType) {
+            const jobseekerFieldsEl = document.getElementById('jobseeker-fields');
+            const companyFieldsEl = document.getElementById('company-fields');
+            
+            const isJobseeker = userType === 'jobseeker';
+
+            // Toggle visibility
+            jobseekerFieldsEl.classList.toggle('hidden', !isJobseeker);
+            companyFieldsEl.classList.toggle('hidden', isJobseeker);
+
+            // Toggle the disabled state of inputs to control validation
+            jobseekerFieldsEl.querySelectorAll('input').forEach(input => input.disabled = !isJobseeker);
+            companyFieldsEl.querySelectorAll('input').forEach(input => input.disabled = isJobseeker);
+            
+            // After enabling/disabling a section, re-evaluate if any 'unlimited' checkbox should disable its specific input
+            const activeSection = isJobseeker ? jobseekerFieldsEl : companyFieldsEl;
+            activeSection.querySelectorAll('.unlimited-checkbox').forEach(checkbox => {
+                const numberInput = checkbox.closest('.flex').querySelector('input[type="number"]');
+                if (numberInput && checkbox.checked) {
+                    numberInput.disabled = true;
+                }
+            });
+        }
+
+        subscriptionForm.addEventListener('change', e => {
+            if (e.target.name === 'user_type') toggleFields(e.target.value);
+        });
+
+        // ### NO CHANGES BELOW THIS LINE - The rest of your script is correct ###
+
+        subscriptionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const userType = document.querySelector('input[name="user_type"]:checked').value;
+            const adminId = parseInt(localStorage.getItem("currentUserId"));
+            
+            let apiUrl, planData;
+
+            const commonData = {
+                name: document.getElementById('subscription_name').value,
+                duration: parseInt(document.getElementById('subscription_duration').value),
+                amount: parseFloat(document.getElementById('plan_amount').value),
+                status: document.getElementById('plan-status').value, // === CAPTURE STATUS ===
+                admin_id: adminId
+            };
+            
+            if (userType === 'jobseeker') {
+                apiUrl = `${API_URL}/plans/jobseeker`;
+                const appliesInput = document.getElementById('job_applies');
+                const unlimitedApplies = appliesInput.nextElementSibling.querySelector('.unlimited-checkbox').checked;
+                
+                planData = {
+                    ...commonData,
+                    applies: unlimitedApplies ? -1 : parseInt(appliesInput.value)
+                };
+
+            } else if (userType === 'company') {
+                apiUrl = `${API_URL}/plans/company`;
+                const postingsInput = document.getElementById('job_postings');
+                const visitsInput = document.getElementById('resume_visits');
+                const unlimitedPostings = postingsInput.nextElementSibling.querySelector('.unlimited-checkbox').checked;
+                const unlimitedVisits = visitsInput.nextElementSibling.querySelector('.unlimited-checkbox').checked;
+
+                planData = {
+                    ...commonData,
+                    postings: unlimitedPostings ? -1 : parseInt(postingsInput.value),
+                    resumeVisits: unlimitedVisits ? -1 : parseInt(visitsInput.value)
+                };
+            }
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(planData),
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create plan.');
+                }
+                const createdPlan = await response.json();
+                alert(`Successfully created plan: ${createdPlan.name}`);
+                
+                subscriptionForm.reset();
+                toggleFields('jobseeker');
+                generationFormContainer.classList.add('hidden');
+                showSubscriptionManagementDetails();
+                
+                if (userType === 'jobseeker') {
+                    await renderJobseekerPlans();
+                } else {
+                    await renderCompanyPlans();
+                }
+            } catch (error) {
+                console.error('Failed to create plan:', error);
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            subscriptionForm.reset();
+            toggleFields('jobseeker');
+            generationFormContainer.classList.add('hidden');
+            showSubscriptionManagementDetails();
+        });
+        
+        // ### FIXED: IMPLEMENTED ADVERTISER FORM SUBMISSION ###
+        advertiserForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const adminId = parseInt(localStorage.getItem("currentUserId"));
+
+            const planData = {
+                name: document.getElementById('advertiser-subscription-name').value,
+                ad_radius: parseInt(document.getElementById('ad-radius').value),
+                ad_duration: parseInt(document.getElementById('ad-duration').value),
+                amount: parseFloat(document.getElementById('ad-plan-amount').value),
+                status: document.getElementById('advertiser-plan-status').value, // === CAPTURE STATUS ===
+                admin_id: adminId
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/plans/advertiser`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(planData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to create advertiser plan.');
+                }
+                const createdPlan = await response.json();
+                alert(`Successfully created advertiser plan: ${createdPlan.name}`);
+                
+                advertiserForm.reset();
+                advertiserFormContainer.classList.add('hidden');
+                showSubscriptionManagementDetails();
+                await renderAdvertiserPlans()
+                // Note: You might want a function here to refresh a list of advertiser plans if you add one to the UI.
+
+            } catch (error) {
+                console.error('Failed to create advertiser plan:', error);
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        cancelAdvertiserBtn.addEventListener('click', () => {
+            advertiserForm.reset();
+            advertiserFormContainer.classList.add('hidden');
+            showSubscriptionManagementDetails();
+        });
+
+        document.querySelectorAll('.unlimited-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', e => {
+                const targetId = e.target.closest('.flex').querySelector('input[type="number"]').id;
+                const targetInput = document.getElementById(targetId);
+                if (targetInput) {
+                    targetInput.disabled = e.target.checked;
+                    targetInput.required = !e.target.checked;
+                    if (e.target.checked) targetInput.value = '';
+                }
+            });
+        });
+
+        subscriptionFilter.addEventListener('change', updateAnalyticsDashboard);
+
+        // --- CHECK SESSION ON PAGE LOAD ---
+        const loggedInUserId = localStorage.getItem('currentUserId');
+        const userRole = localStorage.getItem('role');
+        if (loggedInUserId && userRole) {
+            showDashboard(userRole);
+        }
+        // ### ADDED: Call toggleFields on load to set the correct initial state ###
+        toggleFields('jobseeker'); 
+    });
+    </script>
+</body>
+</html>

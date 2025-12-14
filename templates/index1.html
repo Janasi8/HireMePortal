@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireMe - User Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9; /* Light blue/gray background */
+        }
+        input:required:invalid {
+            border-color: #ef4444; /* Tailwind red-500 */
+        }
+        .full-screen-viewer {
+            width: 100%;
+            height: 600px; 
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .app-tab-content {
+            display: none;
+        }
+        .tab-button.active-tab {
+            border-bottom: 3px solid #4f46e5; /* indigo-600 */
+            color: #1e293b; /* slate-800 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-6 md:p-10 rounded-2xl shadow-2xl w-full max-w-6xl">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+             <h1 class="text-4xl font-extrabold text-indigo-700 tracking-tight">HireMe</h1>
+             <button id="logoutBtn" onclick="logoutUser()" class="py-2 px-5 bg-red-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 hidden">
+                Logout
+            </button>
+        </div>
+        
+        <!-- Global Message Display -->
+        <div id="message" class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm font-medium text-gray-600 shadow-inner">
+            Checking authentication status...
+        </div>
+        
+        <!-- Main Content Container (Where all other HTML files load) -->
+        <div id="appContent">
+            <!-- Content loads here -->
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        // --- AUTH & STATE MANAGEMENT (GLOBAL) ---
+        let currentUserId = localStorage.getItem('currentUserId') ? parseInt(localStorage.getItem('currentUserId')) : null;
+        let currentUsername = localStorage.getItem('currentUsername') || null;
+
+        const messageDiv = document.getElementById('message');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const appContent = document.getElementById('appContent');
+        
+        // Global Message Function
+        const showMessage = (text, type = 'info') => {
+            messageDiv.textContent = text;
+            messageDiv.className = 'mt-4 p-4 rounded-lg text-center text-sm font-medium shadow-inner';
+            if (type === 'success') messageDiv.classList.add('bg-green-100', 'text-green-800');
+            else if (type === 'error') messageDiv.classList.add('bg-red-100', 'text-red-800');
+            else messageDiv.classList.add('bg-blue-100', 'text-blue-800');
+        };
+
+        // Utility Function to Load HTML Content
+        async function loadContent(filename, initFunction = null) {
+            try {
+                const response = await fetch(filename);
+                if (!response.ok) throw new Error(`Failed to load ${filename}`);
+                const html = await response.text();
+                appContent.innerHTML = html;
+                
+                // If an initialization function is provided, call it to attach listeners
+                if (initFunction && typeof window[initFunction] === 'function') {
+                    window[initFunction]();
+                }
+            } catch (error) {
+                console.error(`Error loading ${filename}:`, error);
+                appContent.innerHTML = `<div class="p-8 text-center bg-red-100 border border-red-400 rounded-xl text-red-700 font-semibold">
+                    Error: Failed to load ${filename}. Please ensure all five HTML files are present in the same directory.
+                </div>`;
+            }
+        }
+        
+        // Navigation Logic
+        function checkAuth() {
+            if (currentUserId && currentUsername) {
+                logoutBtn.classList.remove('hidden');
+                // FIXED: Removed './' prefix
+                loadContent('dashboard.html', 'initDashboard');
+            } else {
+                logoutBtn.classList.add('hidden');
+                // FIXED: Removed './' prefix
+                loadContent('loginorsignup.html', 'initAuth');
+            }
+        }
+
+        // --- Core Auth Logic ---
+        function loginUser(id, username) {
+            if (isNaN(parseInt(id)) || parseInt(id) <= 0) {
+                 showMessage('Invalid User ID provided during login.', 'error');
+                 return;
+            }
+            localStorage.setItem('currentUserId', id);
+            localStorage.setItem('currentUsername', username);
+            currentUserId = id;
+            currentUsername = username;
+            showMessage(`Welcome back, ${username}! Logged in successfully.`, 'success');
+            checkAuth(); // Redirect to dashboard
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('currentUserId');
+            localStorage.removeItem('currentUsername');
+            currentUserId = null;
+            currentUsername = null;
+            showMessage('Logged out successfully. Please log in to continue.', 'info');
+            checkAuth(); // Redirect to auth screen
+        }
+
+        // --- Helper Function for Forms (must be global) ---
+        function getFormData(form) {
+            const data = {};
+            new FormData(form).forEach((value, key) => {
+                if (key === 'user_id' || key === 'latitude' || key === 'longitude') {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value.trim();
+                }
+            });
+            return data;
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', checkAuth);
+        
+        // --- Placeholder functions for dynamic linking (defined globally) ---
+        window.switchTab = function(tabId) {
+            // Logic to switch tabs within the dashboard
+            document.querySelectorAll('.app-tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('text-gray-500', 'hover:text-gray-700', 'border-transparent');
+            });
+
+            const activeBtn = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active-tab');
+                activeBtn.classList.remove('text-gray-500', 'hover:text-gray-700', 'border-transparent');
+            }
+            
+            if (tabId === 'address') handleGetAddresses(); // Auto-fetch addresses when switching to tab
+        };
+
+        // FIXED: Removed './' prefix
+        window.loadAddressManager = () => loadContent('address.html', 'initAddress');
+        // FIXED: Removed './' prefix
+        window.loadCheckout = () => loadContent('cartorcheckout.html', 'initCheckout');
+
+
+        // --- ALL API LOGIC FUNCTIONS (Defined here for scope access) ---
+        
+        // 1. AUTH API Logic
+        window.handleSignup = async function(e) {
+            e.preventDefault();
+            showMessage('Signing up user...', 'info');
+            const form = document.getElementById('signupForm');
+            const requestBody = {
+                firstName: form.querySelector('#signupFirstName').value,
+                lastName: form.querySelector('#signupLastName').value,
+                mobileNumber: form.querySelector('#signupMobileNumber').value,
+                email: form.querySelector('#signupEmail').value,
+                password: form.querySelector('#signupPassword').value,
+                gender: form.querySelector('#signupGender').value,
+                dateOfBirth: form.querySelector('#signupDateOfBirth').value,
+                user_name: form.querySelector('#signupUsername').value, 
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Assuming the Go server returns { "id": 123 }
+                    loginUser(data.id, requestBody.user_name);
+                } else {
+                    showMessage(`Signup Error: ${data.message || 'Failed to sign up.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Signup failed:', error);
+                showMessage('An **API/CORS error** occurred during signup.', 'error');
+            }
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            showMessage('Attempting login...', 'info');
+            const form = document.getElementById('loginForm');
+            const username = form.querySelector('#loginUsername').value;
+            const password = form.querySelector('#loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_name: username, password: password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Assuming the Go server returns { "user_id": 123 }
+                    loginUser(data.user_id, username);
+                } else {
+                    showMessage(`Login Error: ${data.message || 'Invalid credentials.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                showMessage('An **API/CORS error** occurred during login. Is your Go server running and configured for CORS?', 'error');
+            }
+        };
+
+        // 2. RESUME API Logic 
+        window.updateDashboardResumeSection = async function(userID) {
+            // These elements are expected to exist inside the loaded dashboard.html content
+            const statusSpan = document.getElementById('currentResumeStatus');
+            const filenameSpan = document.getElementById('currentFilenameSummary');
+            const uploadTimeSpan = document.getElementById('currentUploadTimeSummary');
+            const infoDiv = document.getElementById('currentResumeInfo');
+            const viewBtn = document.getElementById('viewResumeBtn');
+            const downloadBtn = document.getElementById('downloadResumeBtn');
+            const viewerContainer = document.getElementById('resumeViewerContainer');
+            const viewer = document.getElementById('resumeViewer');
+
+            if (!userID || !statusSpan) {
+                // Return if elements haven't loaded yet or user isn't logged in
+                return;
+            }
+
+            statusSpan.textContent = "Checking...";
+            viewBtn.classList.add('hidden');
+            downloadBtn.classList.add('hidden');
+            viewerContainer.classList.add('hidden');
+            infoDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL}/resume/${userID}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Resume found: Show info/preview controls
+                    statusSpan.textContent = "Uploaded";
+                    statusSpan.classList.replace('text-red-600', 'text-green-600');
+                    filenameSpan.textContent = data.filename;
+                    uploadTimeSpan.textContent = data.uploaded_at ? new Date(data.uploaded_at).toLocaleDateString() : 'N/A';
+                    
+                    infoDiv.classList.remove('hidden'); // SHOW Preview/Download controls
+                    viewBtn.classList.remove('hidden');
+                    downloadBtn.classList.remove('hidden');
+
+                    const downloadUrl = API_URL + data.download_url;
+                    
+                    // Set up event listeners for the downloaded/viewed file
+                    viewBtn.onclick = () => {
+                        // Toggle visibility
+                        if (viewerContainer.classList.contains('hidden')) {
+                            viewer.src = downloadUrl;
+                            viewerContainer.classList.remove('hidden');
+                            viewBtn.textContent = 'Hide Preview';
+                        } else {
+                            viewerContainer.classList.add('hidden');
+                            viewBtn.textContent = 'View Resume in Browser';
+                        }
+                    };
+                    downloadBtn.onclick = () => window.open(downloadUrl, '_blank');
+
+                } else {
+                    // Resume Not Found (e.g., HTTP 404 or empty data): Hide info/preview controls
+                    currentResumeStatus.textContent = "Not Uploaded";
+                    currentResumeStatus.classList.replace('text-green-600', 'text-red-600');
+                    filenameSpan.textContent = "None";
+                    uploadTimeSpan.textContent = "N/A";
+                    
+                    infoDiv.classList.add('hidden'); // HIDE Preview/Download controls
+                    viewerContainer.classList.add('hidden'); // HIDE the viewer itself
+                    
+                    // Clear any leftover download/view handlers
+                    viewBtn.onclick = null;
+                    downloadBtn.onclick = null;
+                    
+                    showMessage('No resume uploaded yet. Please upload one.', 'info');
+                }
+            } catch (error) {
+                // Critical error (CORS, network)
+                console.error('Resume status check error:', error);
+                currentResumeStatus.textContent = "Error";
+                currentResumeStatus.classList.replace('text-green-600', 'text-red-600');
+                filenameSpan.textContent = "N/A";
+                uploadTimeSpan.textContent = "N/A";
+                infoDiv.classList.add('hidden');
+                viewerContainer.classList.add('hidden');
+                showMessage('Could not check resume status. Check your server connection.', 'error');
+            }
+        }
+
+        window.handleResumeUpload = async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('resumeFile');
+            const file = fileInput.files[0];
+            
+            if (!file || !currentUserId) {
+                showMessage('Please select a file and ensure you are logged in.', 'error');
+                return;
+            }
+
+            const allowedMimeTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowedMimeTypes.includes(file.type)) {
+                showMessage(`Invalid file type: ${file.type}. Please upload a PDF, DOC, or DOCX file.`, 'error');
+                return;
+            }
+
+            showMessage('Preparing file for upload...', 'info');
+
+            const reader = new FileReader();
+            reader.onload = async function (event) {
+                const base64Data = event.target.result;
+                
+                const payload = {
+                    user_id: parseInt(currentUserId),
+                    filename: file.name,
+                    mime_type: file.type,
+                    base64_data: base64Data
+                };
+
+                showMessage('Uploading resume...', 'info');
+                try {
+                    const response = await fetch(`${API_URL}/resume`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        showMessage(`Resume uploaded successfully!`, 'success');
+                        updateDashboardResumeSection(currentUserId);
+                        fileInput.value = '';
+                    } else {
+                        showMessage(`Upload failed: ${data.message || 'Unknown server error'}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Resume Upload API Error:', error);
+                    showMessage('A network error occurred during upload. Check CORS.', 'error');
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // 3. ADDRESS API Logic (Moved here from address.html)
+
+        window.handleGetLocation = function() {
+            const latitudeInput = document.getElementById('latitude');
+            const longitudeInput = document.getElementById('longitude');
+            const coordsDisplay = document.getElementById('coordsDisplay');
+            
+            if (navigator.geolocation) {
+                showMessage('Getting your location...');
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    latitudeInput.value = lat;
+                    longitudeInput.value = lon;
+                    coordsDisplay.textContent = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                    showMessage('Location set!', 'success');
+                }, (error) => {
+                    showMessage('Error getting location. Defaulting to 0, 0.', 'error');
+                    console.error('Geolocation error:', error);
+                });
+            } else {
+                showMessage('Geolocation is not supported by your browser. Using 0, 0.', 'error');
+            }
+        };
+
+        window.handleAddAddress = async function(e) {
+            e.preventDefault();
+            showMessage('Saving address...', 'info');
+            
+            const form = document.getElementById('addAddressForm');
+            const requestBody = getFormData(form);
+            requestBody.user_id = parseInt(requestBody.user_id);
+            
+            if (!requestBody.user_id || !requestBody.name || !requestBody.house_number || !requestBody.pin_code || !requestBody.city || !requestBody.state) {
+                 showMessage('Mandatory fields are missing! Cannot save address.', 'error');
+                 return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/address`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`Address ID ${data.id} added successfully!`, 'success');
+                    form.reset();
+                    handleGetAddresses(); // Refresh the list
+                } else {
+                    showMessage(`Error: ${data.message || 'Failed to add address.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Add Address failed:', error);
+                showMessage('An error occurred. Check server logs.', 'error');
+            }
+        };
+
+        window.handleGetAddresses = async function() {
+            const userId = currentUserId;
+            const addressesList = document.getElementById('addressesList');
+
+            if (!userId) {
+                showMessage('Please log in first to fetch addresses.', 'error');
+                return;
+            }
+            showMessage('Fetching addresses...', 'info');
+            addressesList.innerHTML = '<p class="text-center text-gray-500">Loading...</p>';
+
+            try {
+                const response = await fetch(`${API_URL}/address/${userId}`);
+                
+                if (response.ok) {
+                    const addresses = await response.json();
+                    addressesList.innerHTML = '';
+                    if (addresses.length > 0) {
+                        addresses.forEach(addr => {
+                            const addrDiv = renderAddressCard(addr);
+                            addressesList.appendChild(addrDiv);
+                            
+                            addrDiv.querySelector('.edit-btn').addEventListener('click', () => editAddress(addr));
+                            addrDiv.querySelector('.delete-btn').addEventListener('click', () => deleteAddress(addr.id));
+                        });
+                        showMessage(`Found ${addresses.length} addresses for User ID ${userId}.`, 'success');
+                    } else {
+                        addressesList.innerHTML = '<p class="text-center text-gray-500 p-4 border border-dashed rounded-lg mt-4">No addresses found. Add one above!</p>';
+                        showMessage(`No addresses found for User ID ${userId}.`, 'info');
+                    }
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error fetching addresses: ${error.message || 'Server error.'}`, 'error');
+                    addressesList.innerHTML = '<p class="text-center text-red-500 p-4 border border-dashed rounded-lg mt-4">Failed to load addresses.</p>';
+                }
+            } catch (error) {
+                console.error('Fetch Addresses failed:', error);
+                showMessage('An error occurred while connecting to the API.', 'error');
+            }
+        };
+
+        window.renderAddressCard = function(addr) {
+            const addrDiv = document.createElement('div');
+            addrDiv.className = 'p-4 rounded-xl border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow';
+            addrDiv.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-lg font-bold text-indigo-700">${addr.name}</p>
+                    <p class="text-sm text-gray-500">ID: ${addr.id}</p>
+                </div>
+                <div class="text-sm text-gray-700 space-y-1">
+                    <p><strong>House/Floor:</strong> ${addr.house_number} ${addr.floor ? `(Floor ${addr.floor})` : ''}</p>
+                    <p><strong>Society/Landmark:</strong> ${addr.society_name || 'N/A'} ${addr.nearby_landmark ? `(Near: ${addr.nearby_landmark})` : ''}</p>
+                    <p><strong>Area:</strong> ${addr.city}, ${addr.state} - ${addr.pin_code}, ${addr.country || 'N/A'}</p>
+                    <p class="text-xs font-mono pt-1">Lat: ${addr.latitude.toFixed(6)}, Lon: ${addr.longitude.toFixed(6)}</p>
+                </div>
+                <div class="flex space-x-2 mt-4">
+                    <button class="edit-btn py-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium">Edit</button>
+                    <button class="delete-btn py-1 px-3 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">Delete</button>
+                </div>
+            `;
+            return addrDiv;
+        };
+
+        // Edit Address (PUT) - Simplified using prompts
+        async function editAddress(address) {
+            // NOTE: Using window.prompt for simplicity, use a proper modal in production
+            const newHouseNumber = prompt("Edit House Number (Mandatory):", address.house_number);
+            if (!newHouseNumber) return;
+
+            const newPinCode = prompt("Edit Pin Code (Mandatory):", address.pin_code);
+            if (!newPinCode) return;
+            
+            const newName = prompt("Edit Recipient Name:", address.name) || address.name;
+            const newFloor = prompt("Edit Floor:", address.floor) || address.floor;
+            const newSocietyName = prompt("Edit Society Name:", address.society_name) || address.society_name;
+            const newCity = prompt("Edit City:", address.city) || address.city;
+            const newState = prompt("Edit State:", address.state) || address.state;
+            const newCountry = prompt("Edit Country:", address.country) || address.country;
+
+            const requestBody = {
+                name: newName, floor: newFloor, house_number: newHouseNumber, society_name: newSocietyName,
+                nearby_landmark: address.nearby_landmark, sector: address.sector, pin_code: newPinCode,
+                city: newCity, state: newState, country: newCountry,
+                latitude: address.latitude, longitude: address.longitude
+            };
+            
+            showMessage('Updating address...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/address/${address.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    showMessage(`Address ID ${address.id} updated successfully!`, 'success');
+                    handleGetAddresses(); // Refresh the list
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error: ${error.message || 'Failed to update address.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Update Address failed:', error);
+                showMessage('An error occurred during update. Check server logs.', 'error');
+            }
+        }
+
+        // Delete Address (DELETE)
+        async function deleteAddress(addressId) {
+            const confirmDelete = await new Promise(resolve => {
+                const isConfirmed = window.prompt(`To confirm deletion of Address ID ${addressId}, type 'DELETE' below:`);
+                resolve(isConfirmed === 'DELETE');
+            });
+
+            if (!confirmDelete) return;
+
+            showMessage('Deleting address...', 'info');
+
+            try {
+                const response = await fetch(`${API_URL}/address/${addressId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showMessage(`Address ID ${addressId} deleted successfully!`, 'success');
+                    handleGetAddresses(); // Refresh the list
+                } else {
+                    const error = await response.json();
+                    showMessage(`Error: ${error.message || 'Failed to delete address.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Delete Address failed:', error);
+                showMessage('An error occurred during deletion. Check server logs.', 'error');
+            }
+        }
+
+
+        // ====================================================================
+        // CHECKOUT LOGIC
+        // ====================================================================
+
+        // Toggle visibility based on radio button selection
+        window.toggleCheckoutMode = function() {
+            // FIX: Safely check for elements before accessing properties
+            const directCheckoutItems = document.getElementById('directCheckoutItems');
+            const checkedInput = document.querySelector('input[name="checkoutType"]:checked');
+
+            if (!checkedInput || !directCheckoutItems) {
+                return;
+            }
+            
+            const isDirect = checkedInput.value === 'direct';
+            directCheckoutItems.classList.toggle('hidden', !isDirect);
+        };
+        
+        // Add Item Row for Direct Checkout
+        window.handleAddItemRow = function() {
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            if (!cartItemsContainer) return;
+
+            const newItemRow = document.createElement('div');
+            newItemRow.className = 'item-row grid grid-cols-5 gap-3 items-center';
+            newItemRow.innerHTML = `
+                <input type="number" placeholder="Item ID" class="col-span-1 border rounded-md p-2 text-sm item-id" required>
+                <input type="number" placeholder="Quantity" class="col-span-1 border rounded-md p-2 text-sm item-qty" required>
+                <input type="text" placeholder="Delivery Address (Full String)" class="col-span-2 border rounded-md p-2 text-sm item-address" required>
+                <button type="button" class="remove-item-btn py-1 px-3 bg-red-500 hover:bg-red-600 text-white text-xs rounded-md shadow-sm">X</button>
+            `;
+            cartItemsContainer.appendChild(newItemRow);
+            newItemRow.querySelector('.remove-item-btn').addEventListener('click', () => newItemRow.remove());
+        };
+
+
+        // Handle Checkout Submission
+        window.handleCheckoutSubmission = async function(e) {
+            e.preventDefault();
+            const checkoutForm = document.getElementById('checkoutForm');
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            
+            if (!checkoutForm || !cartItemsContainer) return;
+            
+            const userId = currentUserId; // Use logged-in user ID
+            const checkoutType = document.querySelector('input[name="checkoutType"]:checked').value;
+            
+            if (!userId) {
+                showMessage('You must be logged in to process checkout.', 'error');
+                return;
+            }
+
+            let requestBody = {
+                UserID: userId,
+                CartCheckout: checkoutType === 'cart',
+                Items: []
+            };
+
+            if (checkoutType === 'direct') {
+                const itemRows = cartItemsContainer.querySelectorAll('.item-row');
+                itemRows.forEach(row => {
+                    const itemId = parseInt(row.querySelector('.item-id').value);
+                    const quantity = parseInt(row.querySelector('.item-qty').value);
+                    const address = row.querySelector('.item-address').value;
+
+                    if (itemId && quantity && address) {
+                        requestBody.Items.push({ 
+                            ItemID: itemId, 
+                            Quantity: quantity, 
+                            Address: address 
+                        });
+                    }
+                });
+
+                if (requestBody.Items.length === 0) {
+                    showMessage('Please add at least one item for direct checkout.', 'error');
+                    return;
+                }
+            }
+
+            showMessage(`Processing ${checkoutType} checkout...`, 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`Checkout Successful! ${data.message || 'Order placed.'}`, 'success');
+                } else {
+                    showMessage(`Checkout Error: ${data.message || 'Failed to process checkout.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Checkout failed:', error);
+                showMessage('An error occurred during checkout. Check server logs.', 'error');
+            }
+        };
+
+        // --- Initialization Function for the Checkout Tab ---
+        window.initCheckout = function() {
+            const checkoutForm = document.getElementById('checkoutForm');
+            const addItemBtn = document.getElementById('addItemBtn');
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            
+            // Ensure elements exist before adding listeners
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', window.handleCheckoutSubmission);
+            }
+            if (addItemBtn) {
+                addItemBtn.addEventListener('click', window.handleAddItemRow);
+            }
+            
+            // Initial call to set visibility (FIXED: run after DOM content is loaded)
+            window.toggleCheckoutMode();
+            
+            // Attach listener to radio buttons if they exist
+            document.querySelectorAll('input[name="checkoutType"]').forEach(radio => {
+                radio.addEventListener('change', window.toggleCheckoutMode);
+            });
+        };
+        
+        // --- Initialization Function for the Address Tab ---
+        window.initAddress = function() {
+            const addAddressForm = document.getElementById('addAddressForm');
+            const getLocationBtn = document.getElementById('getLocationBtn');
+            const getAddressesBtn = document.getElementById('getAddressesBtn');
+            
+            if (addAddressForm) {
+                addAddressForm.addEventListener('submit', window.handleAddAddress);
+            }
+            if (getLocationBtn) {
+                getLocationBtn.addEventListener('click', window.handleGetLocation);
+            }
+            if (getAddressesBtn) {
+                getAddressesBtn.addEventListener('click', window.handleGetAddresses);
+            }
+            
+            // Pre-fill user ID on load
+            const addressUserId = document.getElementById('addressUserId');
+            const getUserId = document.getElementById('getUserId');
+            if (addressUserId) addressUserId.value = currentUserId || '';
+            if (getUserId) getUserId.value = currentUserId || '';
+        };
+        
+        // --- Initialization Function for the Dashboard ---
+        window.initDashboard = function() {
+            const dashboardUserId = document.getElementById('dashboardUserId');
+            const resumeUploadForm = document.getElementById('resumeUploadForm');
+            
+            if (dashboardUserId) dashboardUserId.textContent = `(ID: ${currentUserId})`;
+            if (resumeUploadForm) {
+                resumeUploadForm.addEventListener('submit', window.handleResumeUpload);
+            }
+            
+            // Update resume status section
+            window.updateDashboardResumeSection(currentUserId);
+        };
+        
+    </script>
+</body>
+</html>

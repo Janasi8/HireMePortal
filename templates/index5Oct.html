@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireMe - User Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9; /* Light blue/gray background */
+        }
+        input:required:invalid, select:required:invalid {
+            border-color: #ef4444; /* Tailwind red-500 */
+        }
+        .full-screen-viewer {
+            width: 100%;
+            height: 600px; 
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen py-8">
+
+    <div class="container mx-auto px-4 max-w-5xl space-y-8">
+        
+        <header class="flex justify-between items-center mb-6 p-4 bg-white rounded-2xl shadow-xl">
+             <h1 class="text-4xl font-extrabold text-indigo-700 tracking-tight">HireMe Career Portal</h1>
+             <button id="logoutBtn" onclick="logoutUser()" class="py-2 px-5 bg-red-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 hidden">
+                Logout
+            </button>
+        </header>
+
+        <div id="messageBox" class="p-4 bg-gray-100 rounded-lg text-center text-sm font-medium text-gray-600 shadow-inner">
+            Checking authentication status...
+        </div>
+
+        <div id="authScreen" class="max-w-xl mx-auto space-y-10">
+            <div class="p-8 text-center bg-indigo-50 rounded-xl border border-indigo-300 shadow-md">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-2">Login or Sign Up</h2>
+                <p class="text-gray-600 text-lg">Access your profile and resume tools.</p>
+            </div>
+
+            <div id="loginContainer" class="p-8 border border-gray-200 rounded-xl bg-gray-50 space-y-6 shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-800">Log In</h3>
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="loginUsername" name="user_name" placeholder="Enter your username" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm sm:text-base p-3 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm sm:text-base p-3 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="loginUserType" class="block text-sm font-medium text-gray-700">Select Role</label>
+                        <select id="loginUserType" name="user_type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm sm:text-base p-3" required>
+                            <option value="JOB_SEEKER">Job Seeker</option>
+                            <option value="COMPANY">Company / Recruiter</option>
+                            <option value="ADVERTISER">Advertiser</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-300">
+                        Log In
+                    </button>
+                </form>
+
+               
+            </div>
+
+            <div id="signupContainer" class="p-8 border border-green-300 rounded-xl bg-green-50 space-y-6 shadow-lg hidden">
+                <h3 class="text-2xl font-bold text-green-700">New User Signup</h3>
+                <form id="signupForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="signupUsername" name="user_name" placeholder="Username" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="password" id="signupPassword" name="password" placeholder="Password" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="text" id="signupFirstName" name="first_name" placeholder="First Name" class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm">
+                        <input type="text" id="signupLastName" name="last_name" placeholder="Last Name" class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm">
+                        <input type="tel" id="signupMobileNumber" name="mobile_number" placeholder="Mobile Number (Mandatory)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="email" id="signupEmail" name="email" placeholder="Email (Mandatory)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="date" id="signupDOB" name="date_of_birth" placeholder="Date of Birth" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                        <select id="signupUserType" name="user_type" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                            <option value="JOB_SEEKER">Sign up as Job Seeker</option>
+                            <option value="COMPANY">Sign up as Company</option>
+                            <option value="ADVERTISER">Sign up as Advertiser</option>
+                        </select>
+                        <select id="signupMembership" name="membershipDays" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            <option value="0">Free Trial (0 Days)</option>
+                            <option value="15">Premium (15 Days)</option>
+                            <option value="30">Premium (30 Days)</option>
+                            <option value="90">Premium (90 Days)</option>
+                            <option value="365">Premium (365 Days)</option>
+                        </select>
+                    </div>
+                    <div id="companyFields" class="company-fields-group">
+                            <input type="text" id="signupCompanyName" name="company_name" placeholder="Company Name (Required)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                        </div>
+                        <div id="gstFields" class="company-fields-group">
+                            <input type="text" id="signupGstNumber" name="gst_number" placeholder="GST / Registration ID (Required)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                        </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-green-600 hover:bg-green-700 transition duration-300">
+                        Sign Up & Log In
+                    </button>
+                </form>
+            </div>
+             <hr class="my-6 border-gray-300">
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-3">Don't have an account?</p>
+                    <button type="button" id="toggleSignupBtn" class="py-2 px-6 border border-green-600 text-sm font-semibold rounded-full text-green-600 hover:bg-green-100 transition duration-300">
+                        Show Signup Form
+                    </button>
+            </div>
+        </div>
+
+        <div id="dashboardScreen" class="space-y-8 hidden">
+            
+            <div class="p-8 text-center bg-white rounded-2xl border shadow-xl" id="dashboardHeader">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-2" id="dashboardTitle"></h2>
+                <p class="text-gray-600 text-lg mb-2" id="dashboardSubtitle"></p>
+                <div class="flex justify-center items-center space-x-4 mt-2">
+                    <p class="text-sm font-medium text-indigo-600">User: <span id="currentUsernameDisplay" class="font-bold"></span> (<span id="dashboardUserId" class="text-gray-500"></span>)</p>
+                    <span id="paidStatusBadge" class="px-3 py-1 text-xs font-bold rounded-full"></span>
+                </div>
+            </div>
+
+            <div id="dashboardContent" class="space-y-8">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        // --- GLOBAL STATE ---
+        let currentUserId = localStorage.getItem('currentUserId') ? parseInt(localStorage.getItem('currentUserId')) : null;
+        let currentUsername = localStorage.getItem('currentUsername') || null;
+        let currentUserRole = localStorage.getItem('currentUserRole') || null;
+        let currentMembershipDays = parseInt(localStorage.getItem('currentMembershipDays')) || 0;
+        let currentIsPaidMember = currentMembershipDays > 0;
+
+        // State for Job Seeker Profile (Simulated)
+        let jobSeekerProfile = null; 
+        let isProfileComplete = false;
+
+
+        // Global state to hold the uploaded file data for immediate analysis (for Job Seeker)
+        window.lastUploadedBase64 = null;
+        window.lastUploadedMimeType = null;
+
+
+        const messageBox = document.getElementById('messageBox');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authScreen = document.getElementById('authScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const signupContainer = document.getElementById('signupContainer');
+        const loginContainer = document.getElementById('loginContainer');
+
+        // Global Message Function
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            messageBox.className = 'p-4 rounded-lg text-center text-sm font-medium shadow-inner';
+            if (type === 'success') messageBox.classList.add('bg-green-100', 'text-green-800');
+            else if (type === 'error') messageBox.classList.add('bg-red-100', 'text-red-800');
+            else messageBox.classList.add('bg-blue-100', 'text-blue-800');
+        };
+
+        // --- CORE AUTH AND STATE MANAGEMENT ---
+
+        function updateDashboardHeader(role, isPaid, days) {
+            const titleElement = document.getElementById('dashboardTitle');
+            const subtitleElement = document.getElementById('dashboardSubtitle');
+            const badgeElement = document.getElementById('paidStatusBadge');
+
+            document.getElementById('currentUsernameDisplay').textContent = currentUsername;
+            document.getElementById('dashboardUserId').textContent = `(ID: ${currentUserId})`;
+
+            badgeElement.classList.remove('bg-green-600', 'text-white', 'bg-gray-200', 'text-gray-700');
+
+            if (isPaid && days > 0) {
+                badgeElement.textContent = `PREMIUM ACCESS (${days} Days)`;
+                badgeElement.classList.add('bg-green-600', 'text-white');
+            } else {
+                badgeElement.textContent = `FREE TIER`;
+                badgeElement.classList.add('bg-gray-200', 'text-gray-700');
+            }
+
+            switch (role) {
+                case 'JOB_SEEKER':
+                    titleElement.textContent = "Job Seeker Dashboard";
+                    subtitleElement.textContent = "Manage your resume and track profile activity.";
+                    loadJobSeekerDashboard();
+                    break;
+                case 'COMPANY':
+                    titleElement.textContent = "Recruiter Dashboard";
+                    subtitleElement.textContent = "Manage job listings and search candidates.";
+                    loadCompanyDashboard();
+                    break;
+                case 'ADVERTISER':
+                    titleElement.textContent = "Advertiser Console";
+                    subtitleElement.textContent = "Manage campaigns and monitor performance.";
+                    loadAdvertiserDashboard();
+                    break;
+                default:
+                    titleElement.textContent = "Welcome";
+                    subtitleElement.textContent = "Access Denied: Unknown role.";
+                    document.getElementById('dashboardContent').innerHTML = `<p class="text-center text-red-500">Access role not recognized.</p>`;
+            }
+        }
+        
+        function checkAuth() {
+            if (currentUserId && currentUsername && currentUserRole) {
+                authScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+                
+                // Initialize Dashboard based on role
+                updateDashboardHeader(currentUserRole, currentIsPaidMember, currentMembershipDays);
+            } else {
+                authScreen.classList.remove('hidden');
+                dashboardScreen.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+                 // FIX: Ensure login is visible and signup is hidden when starting logged out
+                if (loginContainer && signupContainer) {
+                    loginContainer.classList.remove('hidden');
+                    signupContainer.classList.add('hidden');
+                    // Ensure the button text reflects the state
+                    document.getElementById('toggleSignupBtn').textContent = 'Show Signup Form';
+                }
+                
+                showMessage('Please sign up or log in to continue.', 'info');
+            }
+        }
+
+        function loginUser(id, username, role, isPaid, membershipDays) {
+            console.log('Logging in user:', {id, username, role, isPaid, membershipDays});
+            if (isNaN(parseInt(id)) || parseInt(id) <= 0) return showMessage('Invalid User ID provided.', 'error');
+            
+            localStorage.setItem('currentUserId', id);
+            localStorage.setItem('currentUsername', username);
+            localStorage.setItem('currentUserRole', role);
+            localStorage.setItem('currentMembershipDays', membershipDays);
+
+            currentUserId = id;
+            currentUsername = username;
+            currentUserRole = role;
+            currentMembershipDays = membershipDays;
+            currentIsPaidMember = isPaid;
+
+            showMessage(`Welcome back, ${username} (${role})! Logged in successfully.`, 'success');
+            checkAuth();
+        }
+
+        function logoutUser() {
+            localStorage.clear();
+            currentUserId = null;
+            currentUsername = null;
+            currentUserRole = null;
+            currentIsPaidMember = false;
+            currentMembershipDays = 0;
+            // Clear local file state
+            window.lastUploadedBase64 = null;
+            window.lastUploadedMimeType = null;
+             // Reset profile state on logout
+            jobSeekerProfile = null;
+            isProfileComplete = false;
+            checkAuth();
+        }
+
+        function toggleSignupFields(role) {
+            const isCompanyOrAdvertiser = (role === 'COMPANY' || role === 'ADVERTISER');
+            
+            const companyFields = document.getElementById('companyFields');
+            const gstFields = document.getElementById('gstFields');
+            const companyNameInput = document.getElementById('signupCompanyName');
+            const gstNumberInput = document.getElementById('signupGstNumber');
+            
+            // Toggle Visibility
+            companyFields.style.display = isCompanyOrAdvertiser ? 'block' : 'none';
+            gstFields.style.display = isCompanyOrAdvertiser ? 'block' : 'none';
+            
+            // Toggle Mandatory Status (The required attribute is crucial for browser validation)
+            companyNameInput.required = isCompanyOrAdvertiser;
+            gstNumberInput.required = isCompanyOrAdvertiser;
+            
+            // Ensure inputs are cleared if they are hidden to avoid sending invalid data
+            if (!isCompanyOrAdvertiser) {
+                 companyNameInput.value = '';
+                 gstNumberInput.value = '';
+            }
+        }
+        // Attach field toggle listener on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const signupRoleSelect = document.getElementById('signupRole');
+            if (signupRoleSelect) {
+                signupRoleSelect.addEventListener('change', (e) => toggleSignupFields(e.target.value));
+                // Initial check
+                toggleSignupFields(signupRoleSelect.value);
+            }
+            checkAuth();
+        });
+
+        function toggleSignupForm() {
+            const isHidden = signupContainer.classList.contains('hidden');
+            
+            // Toggle visibility of the signup form container
+            signupContainer.classList.toggle('hidden', !isHidden);
+            
+            // Toggle visibility of the login form container (The FIX)
+            loginContainer.classList.toggle('hidden', isHidden); 
+            
+            document.getElementById('toggleSignupBtn').textContent = isHidden ? 'Hide Signup Form' : 'Show Signup Form';
+            
+            // Reset fields on toggle
+            document.getElementById('signupForm').reset();
+            toggleSignupFields('JOB_SEEKER'); // Default to hiding company fields
+        }
+
+        document.getElementById('toggleSignupBtn').addEventListener('click', toggleSignupForm);
+        
+        // --- API HANDLERS (Simplified for Monolithic File) ---
+
+        // Helper Function to get form data
+        function getAuthFormData(formId) {
+            const form = document.getElementById(formId);
+            const data = {};
+            new FormData(form).forEach((value, key) => {
+                data[key] = value.trim();
+            });
+            return data;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('Attempting login...', 'info');
+            const user_name = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const user_type = document.getElementById('loginUserType').value; // Get selected role
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_name: user_name, password: password, user_type: user_type })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    const simulatedMembership = (user_name === 'premium_company' && user_type === 'COMPANY') ? 90 : 0;
+                    
+                    const backendData = {
+                        user_id: data.user_id || 101, 
+                        user_name: user_name,
+                        user_type: user_type, 
+                        is_paid_member: (simulatedMembership > 0),
+                        membership_days: simulatedMembership,
+                    };
+
+                    loginUser(backendData.user_id, backendData.user_name, backendData.user_type, backendData.is_paid_member, backendData.membership_days);
+                } else {
+                    showMessage(`Login Error: ${data.message || 'Invalid credentials or server error.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                showMessage('Network error during login. Check Go server and CORS.', 'error');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('Signing up user...', 'info');
+            const requestBody = getAuthFormData('signupForm');
+            
+            const user_type = document.getElementById('signupUserType').value;
+            const membershipDays = parseInt(document.getElementById('signupMembership').value);
+            if ((user_type === 'COMPANY' || user_type === 'ADVERTISER') && (!requestBody.companyName || !requestBody.gstNumber)) {
+                showMessage('Company Name and GST/Registration ID are required for this role.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    const isPaid = membershipDays > 0;
+                    loginUser(data.user_id, requestBody.user_name, user_type, isPaid, membershipDays);
+                } else {
+                    showMessage(`Signup Error: ${data.message || 'Failed to sign up. Username or email may be taken.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Signup failed:', error);
+                showMessage('Network error during signup. Check Go server and CORS.', 'error');
+            }
+        });
+
+        // --- RESUME UPLOAD/ANALYSIS LOGIC (Used by Job Seeker Dashboard) ---
+        async function updateDashboardResumeSection(userID) {
+            // --- Get UI element references ---
+            const statusSpan = document.getElementById('currentResumeStatus');
+            const infoDiv = document.getElementById('currentResumeInfo');
+            const analyzeBtn = document.getElementById('analyzeResumeBtn');
+            const viewerContainer = document.getElementById('resumeViewerContainer');
+            const aiStatusSpan = document.getElementById('aiStatus');
+
+            // --- Basic validation ---
+            if (!userID || !statusSpan) return;
+
+            // --- Reset UI to a loading state ---
+            statusSpan.textContent = "Checking...";
+            statusSpan.classList.remove('text-green-600', 'text-red-600'); // Reset color
+            analyzeBtn.disabled = true;
+            infoDiv.classList.add('hidden');
+            viewerContainer.classList.add('hidden');
+            aiStatusSpan.textContent = "Status: Contacting server...";
+
+
+            try {
+                const response = await fetch(`${API_URL}/resume/${userID}`);
+
+                // --- Case 1: Successful response (HTTP 2xx) ---
+                if (response.ok) {
+                    const data = await response.json();
+                    statusSpan.textContent = "Uploaded";
+                    statusSpan.classList.add('text-green-600');
+                    document.getElementById('currentFilenameSummary').textContent = data.filename;
+                    document.getElementById('currentUploadTimeSummary').textContent = data.uploaded_at ? new Date(data.uploaded_at).toLocaleDateString() : 'N/A';
+                    
+                    infoDiv.classList.remove('hidden');
+                    analyzeBtn.disabled = false;
+                    aiStatusSpan.textContent = "Status: Uploaded, Ready for analysis.";
+
+                    const downloadUrl = API_URL + data.download_url;
+                    
+                    // Setup button event handlers
+                    document.getElementById('viewResumeBtn').onclick = () => {
+                        const viewer = document.getElementById('resumeViewer');
+                        const isHidden = viewerContainer.classList.contains('hidden');
+                        if (isHidden) {
+                            viewer.src = downloadUrl;
+                            viewerContainer.classList.remove('hidden');
+                            document.getElementById('viewResumeBtn').textContent = 'Hide Preview';
+                        } else {
+                            viewerContainer.classList.add('hidden');
+                            viewer.src = '';
+                            document.getElementById('viewResumeBtn').textContent = 'View Resume in Browser';
+                        }
+                    };
+                    document.getElementById('downloadResumeBtn').onclick = () => window.open(downloadUrl, '_blank');
+
+                } else {
+                    // --- Case 2: Server responded, but with an error status ---
+                    
+                    // Specifically handle 404 Not Found - this is an expected "error"
+                    if (response.status === 404) {
+                        statusSpan.textContent = "Not Uploaded";
+                        aiStatusSpan.textContent = "Status: Awaiting upload.";
+                        document.getElementById('currentFilenameSummary').textContent = "None";
+                        document.getElementById('currentUploadTimeSummary').textContent = "N/A";
+                    } else {
+                        // Handle all other server errors (500, 403, etc.)
+                        statusSpan.textContent = "Server Error";
+                        aiStatusSpan.textContent = `Status: Error (${response.status})`;
+                        // For debugging, log the specific error
+                        console.error('Server responded with an error:', response.status, response.statusText);
+                        showMessage(`Could not retrieve resume info. Server returned status: ${response.status}`, 'error');
+                    }
+                    statusSpan.classList.add('text-red-600');
+                }
+            } catch (error) {
+                // --- Case 3: Network error or fetch failed completely ---
+                // This block runs if the server is unreachable (e.g., network down, CORS error)
+                console.error('Resume status check failed:', error);
+                statusSpan.textContent = "Connection Error";
+                statusSpan.classList.add('text-red-600');
+                aiStatusSpan.textContent = "Status: Cannot connect to API.";
+                showMessage('Could not connect to the resume API. Please check your network connection.', 'error');
+            }
+        }
+
+        window.handleResumeUpload = async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('resumeFile');
+            const file = fileInput.files[0];
+            
+            if (!file || !currentUserId) return showMessage('Select a file.', 'error');
+            if (file.size > 4 * 1024 * 1024) return showMessage('File size limit is 4MB.', 'error');
+
+            window.lastUploadedBase64 = null;
+            window.lastUploadedMimeType = null;
+
+            const reader = new FileReader();
+            reader.onload = async function (event) {
+                const base64Uri = event.target.result;
+                
+                const payload = {
+                    user_id: parseInt(currentUserId),
+                    filename: file.name,
+                    mime_type: file.type,
+                    base64_data: base64Uri
+                };
+
+                showMessage('Uploading resume to server...', 'info');
+                try {
+                    const response = await fetch(`${API_URL}/resume/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        showMessage(`Resume uploaded successfully!`, 'success');
+                        updateDashboardResumeSection(currentUserId);
+                        fileInput.value = '';
+                    } else {
+                        const data = await response.json();
+                        showMessage(`Upload failed: ${data.message || 'Unknown error'}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Resume Upload API Error:', error);
+                    showMessage('Network error during upload.', 'error');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        window.analyzeResumeWithAI = async function() {
+            if (!currentUserId) {
+                showMessage('Please log in to analyze your resume.', 'error');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeResumeBtn');
+            const summaryOutput = document.getElementById('summaryContent');
+            
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = "Analyzing...";
+            summaryOutput.innerHTML = `<p class="text-center text-blue-600">Running analysis via local API...</p>`;
+            summaryOutput.classList.remove('hidden');
+
+            const requestBody = { user_id: parseInt(currentUserId) };
+            const apiUrl = `${API_URL}/resume/analyze`; 
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+
+               if (response.ok) {
+                    summaryOutput.innerHTML = `<pre class="whitespace-pre-wrap font-sans text-sm">${data.summary}</pre>`;
+                    showMessage(`Analysis successful: ${data.Message}`, 'success');
+                } else if (response.status === 404) {
+                     summaryOutput.innerHTML = `<p class="text-red-600 font-bold">**Error:** Resume not found on server. Please upload your resume first!</p>`;
+                     showMessage('Resume file not found for analysis.', 'error');
+                } else {
+                    summaryOutput.innerHTML = `<p class="text-red-600">Analysis failed: ${data.error || data.message || 'Unknown server error.'}</p>`;
+                    showMessage('Analysis failed. Check dashboard for details.', 'error');
+                }
+            } catch (error) {
+                console.error('Local Analysis API Error:', error);
+                summaryOutput.innerHTML = `<p class="text-red-600">Network error during analysis. Check console and Go server logs.</p>`;
+                showMessage('Network error during analysis.', 'error');
+            } finally {
+                analyzeBtn.textContent = "Analyze Resume (AI)";
+                analyzeBtn.disabled = false;
+            }
+        };
+
+        // --- Job Seeker Profile Functions ---
+        async function fetchUserProfile(userId) {
+            if (!userId) {
+                isProfileComplete = false;
+                jobSeekerProfile = null;
+                return;
+            }
+            try {
+                const response = await fetch(`${API_URL}/jobseeker/profile/${userId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    jobSeekerProfile = data;
+                    isProfileComplete = true;
+                } else {
+                    jobSeekerProfile = null;
+                    isProfileComplete = false;
+                }
+            } catch (error) {
+                jobSeekerProfile = null;
+                isProfileComplete = false;
+            }finally {
+                console.log('Fetched profile:', jobSeekerProfile);
+            }
+        }
+
+        function renderProfileSection() {
+            const promptContainer = document.getElementById('profilePromptContainer');
+            const detailsContainer = document.getElementById('profileDetailsContainer');
+            const formContainer = document.getElementById('profileUpdateFormContainer');
+
+            if (isProfileComplete && jobSeekerProfile) {
+                promptContainer.classList.add('hidden');
+                formContainer.classList.add('hidden');
+                detailsContainer.classList.remove('hidden');
+
+                detailsContainer.innerHTML = `
+                    <div class="space-y-2 text-sm text-gray-700">
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">User ID:</strong> ${jobSeekerProfile.user_id || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Professional Headline:</strong> ${jobSeekerProfile.profile_summary || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Current Location:</strong> ${jobSeekerProfile.location || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Current Company:</strong> ${jobSeekerProfile.current_company || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Open For Locations:</strong> ${jobSeekerProfile.open_for_locations || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Salary Range:</strong> ${jobSeekerProfile.salary_range || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Work Experience (Current Role):</strong> ${jobSeekerProfile.work_ex || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Overall Work Experience:</strong> ${jobSeekerProfile.overall_work_ex || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Skills:</strong> ${jobSeekerProfile.skills || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Job Type:</strong> ${jobSeekerProfile.job_type || ''}</p>
+                        <p><strong class="font-semibold text-gray-800 w-40 inline-block">Job Title:</strong> ${jobSeekerProfile.job_title || ''}</p>
+                    </div>
+                    <button id="editProfileBtn" class="mt-4 py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition duration-150">
+                        Edit Profile
+                    </button>
+                `;
+                document.getElementById('editProfileBtn').addEventListener('click', () => toggleProfileForm(true));
+            } else {
+                detailsContainer.classList.add('hidden');
+                formContainer.classList.add('hidden');
+                promptContainer.classList.remove('hidden');
+            }
+        }
+
+        function toggleProfileForm(show) {
+            const formContainer = document.getElementById('profileUpdateFormContainer');
+            const promptContainer = document.getElementById('profilePromptContainer');
+            const detailsContainer = document.getElementById('profileDetailsContainer');
+            
+            if (show) {
+                promptContainer.classList.add('hidden');
+                detailsContainer.classList.add('hidden');
+                formContainer.classList.remove('hidden');
+
+                // Pre-fill form if data exists
+                if(jobSeekerProfile) {
+                    document.getElementById('profileHeadline').value = jobSeekerProfile.headline || '';
+                    document.getElementById('profileLocation').value = jobSeekerProfile.location || '';
+                    document.getElementById('profileExperience').value = jobSeekerProfile.experience || '';
+                    document.getElementById('profilePackage').value = jobSeekerProfile.package || '';
+                }
+            } else {
+                formContainer.classList.add('hidden');
+                renderProfileSection(); // Re-render to show correct state
+            }
+        }
+
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            showMessage('Saving profile...', 'info');
+
+            const formData = new FormData(e.target);
+            const updatedProfile = {
+                user_id: currentUserId,
+                profile_summary: formData.get('profile_summary'),
+                location: formData.get('location'),
+                current_company: formData.get('current_company'),
+                open_for_locations: formData.get('open_for_locations'),
+                salary_range: formData.get('salary_range'),
+                work_ex: formData.get('work_ex'),
+                overall_work_ex: formData.get('overall_work_ex'),
+                skills: formData.get('skills'),
+                job_type: formData.get('job_type'),
+                job_title: formData.get('job_title'),
+                details: formData.get('details')
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/jobseeker/profile/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedProfile)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Simulation: save to localStorage
+                    localStorage.setItem(`profile_${currentUserId}`, JSON.stringify(updatedProfile));
+                    jobSeekerProfile = updatedProfile;
+                    isProfileComplete = true;
+                    showMessage('Profile updated successfully!', 'success');
+                    renderProfileSection();
+                } else {
+                    showMessage(`Profile update failed: ${data.message || 'Unknown error.'}`, 'error');
+                }
+            } catch (error) {
+                showMessage('Network error during profile update.', 'error');
+            }
+        }
+
+        // --- DASHBOARD LOADERS (Defined in window scope for global access) ---
+
+        window.loadJobSeekerDashboard = async function() {
+            const content = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="p-6 bg-yellow-50 rounded-xl border border-yellow-300 shadow-md">
+                        <h3 class="text-xl font-bold text-yellow-700 mb-3 flex items-center">Resume Status</h3>
+                        <div id="resumeStatusContent" class="text-sm text-gray-600 space-y-2">
+                            <p>Status: <span id="currentResumeStatus" class="font-bold text-red-600">Not Uploaded</span></p>
+                            <p>File: <span id="currentFilenameSummary">N/A</span></p>
+                            <p>Last Update: <span id="currentUploadTimeSummary">N/A</span></p>
+                        </div>
+                    </div>
+
+                    <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-md">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3 flex items-center">Total Profile Views</h3>
+                        <p class="text-5xl font-extrabold text-green-600"><span id="viewCount">24</span></p>
+                        <p class="text-sm text-gray-500 mt-2">Companies checked your profile this month (Simulated).</p>
+                    </div>
+
+                    <div class="p-6 bg-indigo-50 rounded-xl border border-indigo-300 shadow-md">
+                        <h3 class="text-xl font-bold text-indigo-700 mb-3 flex items-center">AI Resume Summary</h3>
+                        <div id="aiAnalysisResult" class="text-gray-700 text-sm space-y-3">
+                            <p class="font-medium text-gray-500" id="aiStatus">Status: Awaiting upload.</p>
+                            <button id="analyzeResumeBtn" onclick="analyzeResumeWithAI()" class="mt-2 w-full py-2 px-4 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors shadow-md text-sm disabled:opacity-50" disabled>
+                                Analyze Resume (AI)
+                            </button>
+                            <div id="summaryContent" class="mt-4 text-sm bg-indigo-100 p-3 rounded-lg hidden"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-8 border-gray-200">
+
+                <div id="jobSeekerProfileSection" class="p-8 bg-white rounded-2xl shadow-xl border border-blue-400/50 space-y-6">
+                    <h3 class="text-2xl font-bold text-blue-800 border-b pb-3">Your Professional Profile</h3>
+                    
+                    <div id="profilePromptContainer">
+                        <button id="toggleProfileFormBtn" class="w-full text-left p-4 bg-blue-100 rounded-lg text-blue-800 font-semibold hover:bg-blue-200 transition duration-300">
+                           ➡️ Complete your profile to increase visibility to recruiters.
+                        </button>
+                    </div>
+
+                    <div id="profileDetailsContainer" class="hidden space-y-3">
+                        </div>
+
+                    <div id="profileUpdateFormContainer" class="hidden">
+                        <form id="jobSeekerProfileForm" class="space-y-4 p-5 border border-blue-200 rounded-xl bg-blue-50 shadow-inner">
+                            <h4 class="text-xl font-semibold text-gray-700">Update Your Details</h4>
+                            <!-- UserId (readonly, hidden for user, but included for backend) -->
+                            <input type="hidden" id="profileUserId" name="user_id" value="">
+                            <div>
+                                <label for="profileSummary" class="block text-sm font-medium text-gray-700">Professional Headline</label>
+                                <input type="text" id="profileSummary" name="profile_summary" placeholder="e.g., Senior Software Engineer" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                            </div>
+                            <div>
+                                <label for="profileLocation" class="block text-sm font-medium text-gray-700">Current Location</label>
+                                <input type="text" id="profileLocation" name="location" placeholder="e.g., Gurugram, India" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                            </div>
+                            <div>
+                                <label for="profileCurrentCompany" class="block text-sm font-medium text-gray-700">Current Company</label>
+                                <input type="text" id="profileCurrentCompany" name="current_company" placeholder="e.g., Google" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileOpenForLocations" class="block text-sm font-medium text-gray-700">Open For Locations</label>
+                                <input type="text" id="profileOpenForLocations" name="open_for_locations" placeholder="e.g., Bangalore, Pune" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileSalaryRange" class="block text-sm font-medium text-gray-700">Current Annual Package</label>
+                                <input type="text" id="profileSalaryRange" name="salary_range" placeholder="e.g., 10-15 Lacs" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileWorkEx" class="block text-sm font-medium text-gray-700">Work Experience (Current Role)</label>
+                                <input type="text" id="profileWorkEx" name="work_ex" placeholder="e.g., 3 years" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileOverallWorkEx" class="block text-sm font-medium text-gray-700">Overall Work Experience</label>
+                                <input type="text" id="profileOverallWorkEx" name="overall_work_ex" placeholder="e.g., 8 years" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileSkills" class="block text-sm font-medium text-gray-700">Skills</label>
+                                <input type="text" id="profileSkills" name="skills" placeholder="e.g., Go, Python, AWS" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileJobType" class="block text-sm font-medium text-gray-700">Job Type</label>
+                                <input type="text" id="profileJobType" name="job_type" placeholder="e.g., Full Time" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileJobTitle" class="block text-sm font-medium text-gray-700">Job Title</label>
+                                <input type="text" id="profileJobTitle" name="job_title" placeholder="e.g., Software Engineer" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3">
+                            </div>
+                            <div>
+                                <label for="profileDetails" class="block text-sm font-medium text-gray-700">Details</label>
+                                <textarea id="profileDetails" name="details" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3"></textarea>
+                            </div>
+                            <div class="flex space-x-4 pt-2">
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-150">Save Profile</button>
+                                <button type="button" id="cancelProfileUpdateBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-5 rounded-lg shadow-sm">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="resumeManagerSection" class="p-8 bg-white rounded-2xl shadow-xl border border-yellow-400/50 space-y-6">
+                    <h3 class="text-2xl font-bold text-yellow-800 border-b pb-3 flex items-center">Resume Upload & Viewer</h3>
+                    
+                    <div id="currentResumeInfo" class="space-y-4 p-5 border border-gray-200 rounded-xl bg-white shadow-sm">
+                        <h4 class="text-xl font-semibold text-gray-700">Preview & Download</h4>
+                        <div class="flex space-x-4">
+                            <button id="viewResumeBtn" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-150">View Resume in Browser</button>
+                            <button id="downloadResumeBtn" class="py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150">Download File</button>
+                        </div>
+                    </div>
+                    
+                    <form id="resumeUploadForm" class="space-y-4 p-5 border border-yellow-200 rounded-xl bg-yellow-50 shadow-inner">
+                        <h4 class="text-xl font-semibold text-gray-700">Upload New Resume (.PDF, .DOC, .DOCX)</h4>
+                        <label for="resumeFile" class="block text-sm font-medium text-gray-700">Select File (Max 4MB):</label>
+                        <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-150">
+                            Upload & Replace Current Resume
+                        </button>
+                    </form>
+
+                    <div id="resumeViewerContainer" class="hidden">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Resume Preview (Streamed from Server):</p>
+                        <embed id="resumeViewer" src="" class="full-screen-viewer" type="application/pdf">
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboardContent').innerHTML = content;
+
+            // --- Attach listeners for the dashboard ---
+            document.getElementById('resumeUploadForm').addEventListener('submit', window.handleResumeUpload);
+            
+            // Attach listeners for the profile section
+            document.getElementById('toggleProfileFormBtn').addEventListener('click', () => toggleProfileForm(true));
+            document.getElementById('cancelProfileUpdateBtn').addEventListener('click', () => toggleProfileForm(false));
+            document.getElementById('jobSeekerProfileForm').addEventListener('submit', handleProfileUpdate);
+
+
+            // --- Initialize sections ---
+            await fetchUserProfile(currentUserId);
+            renderProfileSection();
+            updateDashboardResumeSection(currentUserId);
+        }
+
+        window.loadCompanyDashboard = function() {
+            const paidText = currentIsPaidMember ? "PREMIUM: Access to full contact details." : "FREE TIER: Contact details are masked.";
+            const upgradeLink = currentIsPaidMember ? '' : `<p class="text-sm text-red-500 font-bold mt-4">Upgrade your plan to view contact details.</p>`;
+            
+            const content = `
+                <div class="space-y-8">
+                    <div class="p-8 bg-white rounded-2xl shadow-xl border border-indigo-400/50 space-y-6">
+                        <h3 class="text-2xl font-bold text-indigo-700 border-b pb-3">Job Management (CRUD)</h3>
+                        <p class="text-sm text-gray-600">Manage job descriptions and track applicant flow.</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button class="py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700">
+                                + Create New Job Listing
+                            </button>
+                            <button class="py-2 px-4 bg-gray-300 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-400">
+                                View Active Listings (4)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-8 bg-white rounded-2xl shadow-xl border border-green-400/50 space-y-6">
+                        <h3 class="text-2xl font-bold text-green-700 border-b pb-3">Candidate Search & Matching</h3>
+                        <p class="text-sm text-gray-600">${paidText}</p>
+                        
+                        <form id="candidateSearchForm" class="space-y-4">
+                            <input type="text" id="searchKeywords" placeholder="Enter required skills (e.g., Kubernetes, Python, 5 years)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                            <button type="submit" class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700">
+                                Search Matching Resumes (Elastic)
+                            </button>
+                        </form>
+
+                        <div id="candidateResults" class="mt-6 space-y-4">
+                            <h4 class="font-bold text-gray-700">Top Matches (Simulated):</h4>
+                            <div class="p-4 border rounded-lg bg-gray-50 space-y-2">
+                                <p class="font-semibold text-lg">Candidate 1: Senior DevOps Engineer</p>
+                                <p class="text-sm text-gray-700">**Skills:** Go, Docker, AWS, Terraform.</p>
+                                ${currentIsPaidMember ? `
+                                    <p class="text-sm text-green-700 font-bold">**Contact:** John Doe, 555-1234, john.d@email.com</p>
+                                ` : `<p class="text-sm text-red-600 font-bold">Contact: [Masked: Upgrade to Premium]</p>`}
+                            </div>
+                            <div class="p-4 border rounded-lg bg-gray-50 space-y-2">
+                                <p class="font-semibold text-lg">Candidate 2: Full Stack Developer</p>
+                                <p class="text-sm text-gray-700">**Skills:** React, Python, AWS Lambda.</p>
+                                ${currentIsPaidMember ? `
+                                    <p class="text-sm text-green-700 font-bold">**Contact:** Alice Smith, 555-9876, alice.s@email.com</p>
+                                ` : `<p class="text-sm text-red-600 font-bold">Contact: [Masked: Upgrade to Premium]</p>`}
+                            </div>
+                            ${upgradeLink}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('dashboardContent').innerHTML = content;
+             // Attach form handler (simulated search)
+            document.getElementById('candidateSearchForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const keywords = document.getElementById('searchKeywords').value;
+                const resultsDiv = document.getElementById('candidateResults');
+                resultsDiv.innerHTML = `<p class="text-center text-blue-600">Searching for resumes matching "${keywords}"...</p>`;
+                
+                // Simulate fetching and displaying tiered data
+                setTimeout(() => {
+                    const paidContact = currentIsPaidMember ? `<p class="text-sm text-green-700 font-bold">**Contact:** John Doe, 555-1234, john.d@email.com</p>` : `<p class="text-sm text-red-600 font-bold">Contact: [Masked: Upgrade to Premium]</p>`;
+                    resultsDiv.innerHTML = `
+                        <h4 class="font-bold text-gray-700">Top Matches for "${keywords}":</h4>
+                        <div class="p-4 border rounded-lg bg-gray-50 space-y-2">
+                            <p class="font-semibold text-lg">Candidate 3: Senior Product Manager</p>
+                            <p class="text-sm text-gray-700">**Skills:** Product Management, Jira, Agile.</p>
+                            ${paidContact}
+                        </div>
+                        ${upgradeLink}
+                    `;
+                }, 1500);
+            });
+        }
+        
+        window.loadAdvertiserDashboard = function() {
+            const content = `
+                <div class="p-8 bg-white rounded-2xl shadow-xl border border-purple-400/50 space-y-6">
+                    <h3 class="text-2xl font-bold text-purple-700 border-b pb-3">Campaign Management Console</h3>
+                    <p class="text-sm text-gray-600">Manage ad placements targeting Job Seekers and Companies.</p>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="p-4 bg-purple-50 rounded-lg border">
+                            <p class="text-4xl font-extrabold text-purple-600">5</p>
+                            <p class="text-sm text-gray-700">Active Campaigns</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 rounded-lg border">
+                            <p class="text-4xl font-extrabold text-purple-600">8.2%</p>
+                            <p class="text-sm text-gray-700">Average CTR</p>
+                        </div>
+                    </div>
+                    <button class="w-full py-2 px-4 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700">
+                        View Analytics & Reports
+                    </button>
+                </div>
+            `;
+            document.getElementById('dashboardContent').innerHTML = content;
+        }
+
+        // Initial setup run
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>

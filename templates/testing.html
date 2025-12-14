@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Your Details</title>
+    <style>
+        /* General Page Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* Form Container */
+        .profile-form {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 24px 32px;
+        }
+
+        .profile-form h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a237e;
+            margin: 0 0 24px 0;
+        }
+        
+        /* Form Group for each field */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        /* Standard Text Input */
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+
+        /* Tag Input Styles */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: text;
+        }
+        .tag {
+            display: flex;
+            align-items: center;
+            background-color: #3f51b5;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+        .tag-remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tag-container input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            padding: 6px;
+            font-size: 16px;
+            min-width: 150px;
+        }
+
+        /* Submit Button */
+        .submit-button {
+            background-color: #3f51b5;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        .submit-button:hover {
+            background-color: #303f9f;
+        }
+    </style>
+</head>
+<body>
+
+    <form class="profile-form">
+        <h2>Update Your Details</h2>
+
+        <div class="form-group">
+            <label for="headline">Professional Headline</label>
+            <input type="text" id="headline" name="profile_summary" class="form-control" value="I am the best code of the world">
+        </div>
+        
+        <div class="form-group">
+            <label for="company">Current Company</label>
+            <input type="text" id="company" name="current_company" class="form-control" value="google">
+        </div>
+        
+        <div class="form-group">
+            <label for="location">Current Location</label>
+            <input type="text" id="location" name="location" class="form-control" value="Gurugram">
+        </div>
+        
+        <div class="form-group">
+            <label for="locations-input">Open For Locations</label>
+            <div class="tag-container" id="locations-container">
+                <input type="text" id="locations-input" placeholder="Add another location...">
+            </div>
+            <input type="hidden" name="open_for_locations" id="hidden-locations" value="Pune,Gurugram">
+        </div>
+        
+        <div class="form-group">
+            <label for="package">Current Annual Package (in Lakhs)</label>
+            <input type="number" id="package" name="salary_range" class="form-control" value="10">
+        </div>
+        
+        <div class="form-group">
+            <label for="work-ex-current">Work Experience in Current Role (Years)</label>
+            <input type="number" id="work-ex-current" name="work_ex" class="form-control" value="5">
+        </div>
+        
+        <div class="form-group">
+            <label for="work-ex-overall">Overall Work Experience (Years)</label>
+            <input type="number" id="work-ex-overall" name="overall_work_ex" class="form-control" value="10">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="submit-button">Save Changes</button>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagContainer = document.getElementById('locations-container');
+            const textInput = document.getElementById('locations-input');
+            const hiddenInput = document.getElementById('hidden-locations');
+            let locations = [];
+
+            function initializeTags() {
+                const initialValues = hiddenInput.value.trim();
+                if (initialValues) {
+                    const initialLocations = initialValues.split(',')
+                        .map(loc => loc.trim())
+                        .filter(loc => loc !== '');
+                    
+                    initialLocations.forEach(location => {
+                        locations.push(location);
+                        createTag(location);
+                    });
+                }
+            }
+
+            function updateHiddenInput() {
+                hiddenInput.value = locations.join(',');
+            }
+
+            function createTag(label) {
+                const tag = document.createElement('div');
+                tag.classList.add('tag');
+                tag.innerHTML = `
+                    <span>${label}</span>
+                    <span class="tag-remove" data-label="${label}">&times;</span>
+                `;
+                tagContainer.insertBefore(tag, textInput);
+            }
+            
+            textInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const newLocation = textInput.value.trim();
+                    if (newLocation && !locations.includes(newLocation)) {
+                        locations.push(newLocation);
+                        createTag(newLocation);
+                        updateHiddenInput();
+                    }
+                    textInput.value = '';
+                }
+            });
+
+            tagContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tag-remove')) {
+                    const labelToRemove = e.target.dataset.label;
+                    locations = locations.filter(loc => loc !== labelToRemove);
+                    e.target.parentElement.remove();
+                    updateHiddenInput();
+                } else if (e.target === tagContainer) {
+                    textInput.focus();
+                }
+            });
+
+            initializeTags();
+        });
+    </script>
+</body>
+</html>

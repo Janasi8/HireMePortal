@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go API Manager</title>
+    <!-- Use Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen py-8">
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 max-w-4xl space-y-8">
+
+        <!-- User Management Section -->
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-xl mx-auto space-y-6">
+            <h1 class="text-3xl font-bold text-gray-800 text-center">User Management</h1>
+            <h2 class="text-2xl font-bold text-gray-800 text-center">Sign Up</h2>
+            
+            <form id="signupForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Username -->
+                    <div>
+                        <label for="userName" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="userName" name="userName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+
+                    <!-- First Name -->
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" id="firstName" name="firstName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+
+                    <!-- Last Name -->
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+
+                    <!-- Mobile Number -->
+                    <div>
+                        <label for="mobileNumber" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="md:col-span-2">
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" name="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="password" name="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+
+                    <!-- Gender -->
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select id="gender" name="gender" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date of Birth -->
+                <div>
+                    <label for="dateOfBirth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" name="dateOfBirth" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    Sign Up
+                </button>
+            </form>
+
+            <!-- Message Box -->
+            <div id="messageBox" class="mt-4 hidden p-3 rounded-md text-sm text-center"></div>
+            
+        </div>
+
+        <!-- User Search and Display Section -->
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">Search for a User</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="searchUserName" placeholder="Enter username" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <button id="searchUserBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                    Search
+                </button>
+            </div>
+            <div id="userDisplay" class="mt-4 p-4 border border-gray-200 rounded-md hidden"></div>
+        </div>
+        
+        <!-- Order Management Section -->
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">Order Management</h2>
+
+            <!-- Order Form (Create & Update) -->
+            <h3 class="text-xl font-semibold text-gray-700">Create / Update Order</h3>
+            <form id="orderForm" class="space-y-4">
+                <input type="hidden" id="orderId" name="orderId">
+                <div>
+                    <label for="orderUserName" class="block text-sm font-medium text-gray-700">Username (for order)</label>
+                    <input type="text" id="orderUserName" name="userName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="productName" class="block text-sm font-medium text-gray-700">Product Name</label>
+                    <input type="text" id="productName" name="productName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                
+                <button type="submit" id="submitOrderBtn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                    Create Order
+                </button>
+            </form>
+
+            <hr class="border-gray-300">
+
+            <!-- Search and List Orders Section -->
+            <h3 class="text-xl font-semibold text-gray-700">Orders</h3>
+            <div class="flex space-x-2">
+                <input type="text" id="searchOrderId" placeholder="Enter Order ID" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <button id="searchOrderBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                    Search Order
+                </button>
+                <button id="getAllOrdersBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    Get All Orders
+                </button>
+            </div>
+            <div id="orderDisplay" class="mt-4 p-4 border border-gray-200 rounded-md hidden"></div>
+        </div>
+        
+        <!-- Item Management Section -->
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-xl mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 text-center">Item Management</h2>
+
+            <!-- Item Form (Create & Update) -->
+            <h3 class="text-xl font-semibold text-gray-700">Create / Update Item</h3>
+            <form id="itemForm" class="space-y-4">
+                <input type="hidden" id="itemId" name="itemId">
+                <div>
+                    <label for="itemName" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="itemName" name="name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="itemDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                    <input type="text" id="itemDescription" name="description" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="itemCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                    <input type="text" id="itemCategory" name="category" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="itemMRP" class="block text-sm font-medium text-gray-700">MRP ($)</label>
+                    <input type="number" step="0.01" id="itemMRP" name="mrp" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="itemDiscount" class="block text-sm font-medium text-gray-700">Discount (%)</label>
+                    <input type="number" step="0.01" id="itemDiscount" name="discount_percentage" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="itemImageURL" class="block text-sm font-medium text-gray-700">Image URL</label>
+                    <input type="text" id="itemImageURL" name="item_image_url" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <button type="submit" id="submitItemBtn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
+                    Create Item
+                </button>
+            </form>
+
+            <hr class="border-gray-300">
+
+            <!-- Search and List Items Section -->
+            <h3 class="text-xl font-semibold text-gray-700">Items</h3>
+            <div class="flex space-x-2">
+                <input type="text" id="searchItemId" placeholder="Enter Item ID" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                <button id="searchItemBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                    Search Item
+                </button>
+                <button id="getAllItemsBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    Get All Items
+                </button>
+            </div>
+            <div id="itemDisplay" class="mt-4 p-4 border border-gray-200 rounded-md hidden"></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Helper function for showing messages
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800');
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            }
+        }
+
+        // --- User Management ---
+        const signupForm = document.getElementById('signupForm');
+        const searchUserBtn = document.getElementById('searchUserBtn');
+        const searchUserNameInput = document.getElementById('searchUserName');
+        const userDisplay = document.getElementById('userDisplay');
+        
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('', '');
+
+            const formData = new FormData(signupForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                if (value) {
+                    data[key] = value;
+                }
+            });
+
+            try {
+                const response = await fetch('http://localhost:8080/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    signupForm.reset();
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            }
+        });
+
+        searchUserBtn.addEventListener('click', async () => {
+            const userName = searchUserNameInput.value;
+            if (!userName) {
+                showMessage('Please enter a username to search.', 'error');
+                return;
+            }
+            
+            userDisplay.innerHTML = '';
+            userDisplay.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`http://localhost:8080/user?username=${userName}`);
+                const user = await response.json();
+                
+                if (response.ok) {
+                    displayUser(user);
+                } else {
+                    userDisplay.innerHTML = `<p class="text-red-600 font-medium">Error: ${user.error}</p>`;
+                    userDisplay.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                userDisplay.innerHTML = `<p class="text-red-600 font-medium">Network error. Please try again later.</p>`;
+                userDisplay.classList.remove('hidden');
+            }
+        });
+
+        function displayUser(user) {
+            userDisplay.innerHTML = `
+                <div class="space-y-2">
+                    <h3 class="text-lg font-bold text-gray-800">User Details</h3>
+                    <p><span class="font-medium">Username:</span> ${user.userName}</p>
+                    <p><span class="font-medium">First Name:</span> ${user.firstName || 'N/A'}</p>
+                    <p><span class="font-medium">Last Name:</span> ${user.lastName || 'N/A'}</p>
+                    <p><span class="font-medium">Mobile Number:</span> ${user.mobileNumber}</p>
+                    <p><span class="font-medium">Email:</span> ${user.email}</p>
+                    <p><span class="font-medium">Gender:</span> ${user.gender || 'N/A'}</p>
+                    <p><span class="font-medium">Date of Birth:</span> ${user.dateOfBirth || 'N/A'}</p>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button id="deleteBtn" data-username="${user.userName}" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                        Delete User
+                    </button>
+                </div>
+            `;
+            userDisplay.classList.remove('hidden');
+            
+            const deleteBtn = document.getElementById('deleteBtn');
+            deleteBtn.addEventListener('click', async () => {
+                const userNameToDelete = deleteBtn.dataset.username;
+                const confirmDelete = window.confirm(`Are you sure you want to delete user: ${userNameToDelete}?`);
+                if (confirmDelete) {
+                    try {
+                        const response = await fetch(`http://localhost:8080/user/${userNameToDelete}`, {
+                            method: 'DELETE',
+                        });
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            showMessage(result.message, 'success');
+                            userDisplay.classList.add('hidden');
+                            searchUserNameInput.value = '';
+                        } else {
+                            showMessage(result.error, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Network error:', error);
+                        showMessage('Network error. Please try again later.', 'error');
+                    }
+                }
+            });
+        }
+
+        // --- Order Management ---
+        const orderForm = document.getElementById('orderForm');
+        const searchOrderBtn = document.getElementById('searchOrderBtn');
+        const searchOrderIdInput = document.getElementById('searchOrderId');
+        const orderDisplay = document.getElementById('orderDisplay');
+        const submitOrderBtn = document.getElementById('submitOrderBtn');
+        const getAllOrdersBtn = document.getElementById('getAllOrdersBtn');
+
+        orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('', '');
+            
+            const formData = new FormData(orderForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            const orderId = document.getElementById('orderId').value;
+            const method = orderId ? 'PUT' : 'POST';
+            const url = orderId ? `http://localhost:8080/orders/${orderId}` : `http://localhost:8080/orders`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(result.message, 'success');
+                    orderForm.reset();
+                    document.getElementById('orderId').value = '';
+                    submitOrderBtn.textContent = 'Create Order';
+                    fetchAndDisplayOrders();
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            }
+        });
+        
+        getAllOrdersBtn.addEventListener('click', fetchAndDisplayOrders);
+
+        searchOrderBtn.addEventListener('click', async () => {
+            const orderId = searchOrderIdInput.value;
+            if (!orderId) {
+                showMessage('Please enter an order ID to search.', 'error');
+                return;
+            }
+            
+            orderDisplay.innerHTML = '';
+            orderDisplay.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`http://localhost:8080/orders/${orderId}`);
+                const order = await response.json();
+                
+                if (response.ok) {
+                    displayOrder(order);
+                } else {
+                    orderDisplay.innerHTML = `<p class="text-red-600 font-medium">Error: ${order.error}</p>`;
+                    orderDisplay.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                orderDisplay.innerHTML = `<p class="text-red-600 font-medium">Network error. Please try again later.</p>`;
+                orderDisplay.classList.remove('hidden');
+            }
+        });
+
+        async function fetchAndDisplayOrders() {
+            try {
+                const response = await fetch('http://localhost:8080/orders');
+                const orders = await response.json();
+                
+                if (response.ok) {
+                    displayOrders(orders);
+                } else {
+                    showMessage(orders.error, 'error');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            }
+        }
+        
+        function displayOrders(orders) {
+            if (orders.length === 0) {
+                orderDisplay.innerHTML = `<p class="text-gray-500 text-center">No orders found.</p>`;
+                orderDisplay.classList.remove('hidden');
+                return;
+            }
+
+            let ordersHtml = `<h3 class="text-lg font-bold text-gray-800 mb-4">All Orders</h3>`;
+            ordersHtml += `<div class="space-y-4">`;
+            
+            orders.forEach(order => {
+                ordersHtml += `
+                    <div class="p-4 border border-gray-200 rounded-md">
+                        <p><span class="font-medium">Order ID:</span> ${order.orderId}</p>
+                        <p><span class="font-medium">Username:</span> ${order.userName}</p>
+                        <p><span class="font-medium">Product:</span> ${order.productName}</p>
+                        <p><span class="font-medium">Quantity:</span> ${order.quantity}</p>
+                        <p><span class="font-medium">Status:</span> ${order.status}</p>
+                        <p><span class="font-medium">Created At:</span> ${new Date(order.createdAt).toLocaleString()}</p>
+                        <div class="flex space-x-2 mt-2">
+                            <button class="edit-btn px-3 py-1 border rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" data-order-id="${order.orderId}" data-user-name="${order.userName}" data-product-name="${order.productName}" data-quantity="${order.quantity}" data-status="${order.status}">Edit</button>
+                            <button class="delete-order-btn px-3 py-1 border rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700" data-order-id="${order.orderId}">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            ordersHtml += `</div>`;
+            orderDisplay.innerHTML = ordersHtml;
+            orderDisplay.classList.remove('hidden');
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('orderId').value = btn.dataset.orderId;
+                    document.getElementById('orderUserName').value = btn.dataset.userName;
+                    document.getElementById('productName').value = btn.dataset.productName;
+                    document.getElementById('quantity').value = btn.dataset.quantity;
+                    document.getElementById('status').value = btn.dataset.status;
+                    submitOrderBtn.textContent = `Update Order`;
+                    showMessage(`Editing Order ID: ${btn.dataset.orderId}`, 'success');
+                });
+            });
+
+            document.querySelectorAll('.delete-order-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const orderIdToDelete = btn.dataset.orderId;
+                    const confirmDelete = window.confirm(`Are you sure you want to delete order ID: ${orderIdToDelete}?`);
+                    if (confirmDelete) {
+                        try {
+                            const response = await fetch(`http://localhost:8080/orders/${orderIdToDelete}`, {
+                                method: 'DELETE',
+                            });
+                            const result = await response.json();
+                            if (response.ok) {
+                                showMessage(result.message, 'success');
+                                fetchAndDisplayOrders();
+                            } else {
+                                showMessage(result.error, 'error');
+                            }
+                        } catch (error) {
+                            console.error('Network error:', error);
+                            showMessage('Network error. Please try again later.', 'error');
+                        }
+                    }
+                });
+            });
+        }
+        
+        function displayOrder(order) {
+            const orderHtml = `
+                <h3 class="text-lg font-bold text-gray-800">Order Details</h3>
+                <p><span class="font-medium">Order ID:</span> ${order.orderId}</p>
+                <p><span class="font-medium">Username:</span> ${order.userName}</p>
+                <p><span class="font-medium">Product:</span> ${order.productName}</p>
+                <p><span class="font-medium">Quantity:</span> ${order.quantity}</p>
+                <p><span class="font-medium">Status:</span> ${order.status}</p>
+                <p><span class="font-medium">Created At:</span> ${new Date(order.createdAt).toLocaleString()}</p>
+            `;
+            orderDisplay.innerHTML = orderHtml;
+            orderDisplay.classList.remove('hidden');
+        }
+
+        // --- Item Management ---
+        const itemForm = document.getElementById('itemForm');
+        const searchItemBtn = document.getElementById('searchItemBtn');
+        const searchItemIdInput = document.getElementById('searchItemId');
+        const itemDisplay = document.getElementById('itemDisplay');
+        const submitItemBtn = document.getElementById('submitItemBtn');
+        const getAllItemsBtn = document.getElementById('getAllItemsBtn');
+        
+        itemForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('', '');
+
+            const formData = new FormData(itemForm);
+            const data = {};
+            formData.forEach((value, key) => {
+                if(['mrp', 'quantity', 'discount_percentage'].includes(key)) {
+                    value = parseFloat(value);
+                }
+                data[key] = value;
+            });
+
+            const itemId = document.getElementById('itemId').value;
+            const method = itemId ? 'PUT' : 'POST';
+            const url = itemId ? `http://localhost:8080/api/items/${itemId}` : `http://localhost:8080/api/items`;
+            data['id'] = method === 'PUT' ? itemId : -1;
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+                
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage(`Item ${itemId ? 'updated' : 'created'} successfully!`, 'success');
+                    itemForm.reset();
+                    document.getElementById('itemId').value = '';
+                    submitItemBtn.textContent = 'Create Item';
+                    fetchAndDisplayItems();
+                } else {
+                    showMessage(result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            }
+        });
+
+        getAllItemsBtn.addEventListener('click', fetchAndDisplayItems);
+        
+        searchItemBtn.addEventListener('click', async () => {
+            const itemId = searchItemIdInput.value;
+            if (!itemId) {
+                showMessage('Please enter an item ID to search.', 'error');
+                return;
+            }
+            
+            itemDisplay.innerHTML = '';
+            itemDisplay.classList.add('hidden');
+            
+            try {
+                const response = await fetch(`http://localhost:8080/api/items/${itemId}`);
+                const item = await response.json();
+                
+                if (response.ok) {
+                    displayItem(item);
+                } else {
+                    itemDisplay.innerHTML = `<p class="text-red-600 font-medium">Error: ${item.Error || item.error || 'Item not found'}</p>`;
+                    itemDisplay.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                itemDisplay.innerHTML = `<p class="text-red-600 font-medium">Network error. Please try again later.</p>`;
+                itemDisplay.classList.remove('hidden');
+            }
+        });
+
+        async function fetchAndDisplayItems() {
+            try {
+                const response = await fetch('http://localhost:8080/api/items');
+                const items = await response.json();
+                
+                if (response.ok) {
+                    displayItems(items);
+                } else {
+                    showMessage(items.error, 'error');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showMessage('Network error. Please try again later.', 'error');
+            }
+        }
+
+        function displayItems(items) {
+            if (items.length === 0) {
+                itemDisplay.innerHTML = `<p class="text-gray-500 text-center">No items found.</p>`;
+                itemDisplay.classList.remove('hidden');
+                return;
+            }
+            let itemsHtml = `<h3 class="text-lg font-bold text-gray-800 mb-4">All Items</h3>`;
+            itemsHtml += `<div class="space-y-4">`;
+            items.forEach(item => {
+                itemsHtml += `
+                    <div class="p-4 border border-gray-200 rounded-md">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-white rounded-lg shadow-md p-2 flex-shrink-0">
+                                ${item.item_image_url ? `<img src=${item.item_image_url} alt="Item Image" class="w-32 h-32 object-cover rounded-md" />` : '<div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-md text-gray-500">No Image</div>'}
+                            </div>
+                            <div class="flex-1">
+                                <p><span class="font-medium">ID:</span> ${item.id}</p>
+                                <p><span class="font-medium">Name:</span> ${item.name}</p>
+                                <p><span class="font-medium">Description:</span> ${item.description || 'N/A'}</p>
+                                <p><span class="font-medium">Category:</span> ${item.category || 'N/A'}</p>
+                                <p><span class="font-medium">MRP:</span> $${item.mrp.toFixed(2)}</p>
+                                <p><span class="font-medium">Discount:</span> ${item.discount_percentage}%</p>
+                                <p><span class="font-medium">Final Price:</span> $${item.final_price.toFixed(2)}</p>
+                                <p><span class="font-medium">Image Path:</span> <span class="text-blue-600">${item.item_image_url || 'N/A'}</span></p>
+                                <div class="flex space-x-2 mt-2">
+                                    <button class="edit-item-btn px-3 py-1 border rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700" 
+                                        data-item-id="${item.id}" 
+                                        data-item-name="${item.name}" 
+                                        data-item-description="${item.description}" 
+                                        data-item-category="${item.category}" 
+                                        data-item-mrp="${item.mrp}" 
+                                        data-item-discount="${item.discount_percentage}">
+                                        Edit
+                                    </button>
+                                    <button class="delete-item-btn px-3 py-1 border rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700" data-item-id="${item.id}">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            itemsHtml += `</div>`;
+            itemDisplay.innerHTML = itemsHtml;
+            itemDisplay.classList.remove('hidden');
+
+            document.querySelectorAll('.edit-item-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('itemId').value = btn.dataset.itemId;
+                    document.getElementById('itemName').value = btn.dataset.itemName;
+                    document.getElementById('itemDescription').value = btn.dataset.itemDescription;
+                    document.getElementById('itemCategory').value = btn.dataset.itemCategory;
+                    document.getElementById('itemMRP').value = btn.dataset.itemMrp;
+                    document.getElementById('itemDiscount').value = btn.dataset.itemDiscount;
+                    submitItemBtn.textContent = `Update Item`;
+                    showMessage(`Editing Item ID: ${btn.dataset.itemId}`, 'success');
+                });
+            });
+
+            document.querySelectorAll('.delete-item-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const itemIdToDelete = btn.dataset.itemId;
+                    const confirmDelete = window.confirm(`Are you sure you want to delete item ID: ${itemIdToDelete}?`);
+                    if (confirmDelete) {
+                        try {
+                            const response = await fetch(`http://localhost:8080/api/items/${itemIdToDelete}`, {
+                                method: 'DELETE',
+                            });
+                            const result = await response.json();
+                            if (response.ok) {
+                                showMessage(result.message, 'success');
+                                fetchAndDisplayItems();
+                            } else {
+                                showMessage(result.error, 'error');
+                            }
+                        } catch (error) {
+                            console.error('Network error:', error);
+                            showMessage('Network error. Please try again later.', 'error');
+                        }
+                    }
+                });
+            });
+        }
+        
+        function displayItem(item) {
+            const itemHtml = `
+                <div class="bg-white rounded-lg shadow-md p-4 flex items-center space-x-4">
+                    <div class="bg-white rounded-lg shadow-md p-2 flex-shrink-0">
+                        ${item.item_image_url ? `<img src="https://picsum.photos/536/354" alt="Item Image" class="w-32 h-32 object-cover rounded-md" />` : '<div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-md text-gray-500">No Image</div>'}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-gray-800">Item Details</h3>
+                        <p><span class="font-medium">ID:</span> ${item.id}</p>
+                        <p><span class="font-medium">Name:</span> ${item.name}</p>
+                        <p><span class="font-medium">Description:</span> ${item.description || 'N/A'}</p>
+                        <p><span class="font-medium">Category:</span> ${item.category || 'N/A'}</p>
+                        <p><span class="font-medium">MRP:</span> $${item.mrp.toFixed(2)}</p>
+                        <p><span class="font-medium">Discount:</span> ${item.discount_percentage}%</p>
+                        <p><span class="font-medium">Final Price:</span> $${item.final_price.toFixed(2)}</p>
+                        <p><span class="font-medium">Image Path:</span> <span class="text-blue-600">${item.item_image_url || 'N/A'}</span></p>
+                    </div>
+                </div>
+            `;
+            itemDisplay.innerHTML = itemHtml;
+            itemDisplay.classList.remove('hidden');
+        }
+    </script>
+    <!-- Cart Management Section -->
+<div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-xl mx-auto space-y-6">
+    <h2 class="text-2xl font-bold text-gray-800 text-center">Cart Management</h2>
+    
+    <!-- Add to Cart Form -->
+    <h3 class="text-xl font-semibold text-gray-700">Add Item to Cart</h3>
+    <form id="addToCartForm" class="space-y-4">
+        <div>
+            <label for="cartUserName" class="block text-sm font-medium text-gray-700">User Name</label>
+            <input type="text" id="cartUserName" name="user_name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+        </div>
+        <div>
+            <label for="cartItemId" class="block text-sm font-medium text-gray-700">Item ID</label>
+            <input type="number" id="cartItemId" name="item_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+        </div>
+        <div>
+            <label for="cartQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+            <input type="number" id="cartQuantity" name="quantity" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+        </div>
+        <button type="submit" id="submitCartBtn" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            Add to Cart
+        </button>
+    </form>
+    
+    <hr class="border-gray-300">
+    
+    <!-- View Cart Section -->
+    <h3 class="text-xl font-semibold text-gray-700">View Cart</h3>
+    <div class="flex space-x-2">
+        <input type="text" id="viewCartUserId" placeholder="Enter User Unique ID" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+        <button id="viewCartBtn" class="flex-shrink-0 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+            View Cart
+        </button>
+    </div>
+    <div id="cartDisplay" class="mt-4 p-4 border border-gray-200 rounded-md hidden"></div>
+</div>
+
+<script>
+    // --- Cart Management ---
+    const addToCartForm = document.getElementById('addToCartForm');
+    const viewCartBtn = document.getElementById('viewCartBtn');
+    const viewCartUserIdInput = document.getElementById('viewCartUserId');
+    const cartDisplay = document.getElementById('cartDisplay');
+    
+    addToCartForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showMessage('', '');
+
+        const formData = new FormData(addToCartForm);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+        try {
+            const response = await fetch('http://localhost:8080/api/cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            
+            const result = await response.json();
+
+            if (response.ok) {
+                showMessage(result.message, 'success');
+                addToCartForm.reset();
+            } else {
+                showMessage(result.error, 'error');
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            showMessage('Network error. Please try again later.', 'error');
+        }
+    });
+
+    viewCartBtn.addEventListener('click', async () => {
+        const userId = viewCartUserIdInput.value;
+        if (!userId) {
+            showMessage('Please enter a User ID to view the cart.', 'error');
+            return;
+        }
+        
+        cartDisplay.innerHTML = '';
+        cartDisplay.classList.add('hidden');
+        
+        try {
+            const response = await fetch(`http://localhost:8080/api/cart/${userId}`);
+            const cartItems = await response.json();
+            
+            if (response.ok) {
+                displayCart(cartItems);
+            } else {
+                cartDisplay.innerHTML = `<p class="text-red-600 font-medium">Error: ${cartItems.error || 'Cart not found'}</p>`;
+                cartDisplay.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Network error:', error);
+            cartDisplay.innerHTML = `<p class="text-red-600 font-medium">Network error. Please try again later.</p>`;
+            cartDisplay.classList.remove('hidden');
+        }
+    });
+
+    function displayCart(cartItems) {
+        if (cartItems.length === 0) {
+            cartDisplay.innerHTML = `<p class="text-gray-500 text-center">Your cart is empty.</p>`;
+            cartDisplay.classList.remove('hidden');
+            return;
+        }
+
+        let cartHtml = `<h3 class="text-lg font-bold text-gray-800 mb-4">Cart Items</h3>`;
+        cartHtml += `<div class="space-y-4">`;
+        let totalCartPrice = 0;
+        
+        cartItems.forEach(item => {
+            cartHtml += `
+                <div class="p-4 border border-gray-200 rounded-md">
+                    <p><span class="font-medium">Item Name:</span> ${item.name}</p>
+                    <p><span class="font-medium">Item ID:</span> ${item.itemID}</p>
+                    <p><span class="font-medium">Quantity:</span> ${item.quantity}</p>
+                    <p><span class="font-medium">Final Price (per item):</span> $${item.finalPrice.toFixed(2)}</p>
+                    <p><span class="font-medium">Total Price:</span> $${item.totalPrice.toFixed(2)}</p>
+                    <button class="delete-cart-item-btn px-3 py-1 border rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700" data-user-id="${viewCartUserIdInput.value}" data-item-id="${item.itemID}">
+                        Delete
+                    </button>
+                </div>
+            `;
+            totalCartPrice += item.totalPrice;
+        });
+        
+        cartHtml += `</div>`;
+        cartHtml += `<p class="text-lg font-bold text-gray-800 mt-4">Total Cart Price: $${totalCartPrice.toFixed(2)}</p>`;
+        cartDisplay.innerHTML = cartHtml;
+        cartDisplay.classList.remove('hidden');
+
+        document.querySelectorAll('.delete-cart-item-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const userId = btn.dataset.userId;
+                const itemIdToDelete = btn.dataset.itemId;
+                const confirmDelete = window.confirm(`Are you sure you want to delete this item from your cart?`);
+                if (confirmDelete) {
+                    try {
+                        const response = await fetch(`http://localhost:8080/api/cart/${userId}/${itemIdToDelete}`, {
+                            method: 'DELETE',
+                        });
+                        const result = await response.json();
+                        if (response.ok) {
+                            showMessage(result.message, 'success');
+                            viewCartBtn.click(); // Refresh the cart display
+                        } else {
+                            showMessage(result.error, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Network error:', error);
+                        showMessage('Network error. Please try again later.', 'error');
+                    }
+                }
+            });
+        });
+    }
+</script>
+
+<!--checkout for cart items-->
+ <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Checkout</h1>
+
+        <form id="checkoutForm" class="space-y-4">
+            <div>
+                <label for="checkoutUsername" class="block text-sm font-medium text-gray-700">User Name</label>
+                <input type="text" id="checkoutUsername" name="user_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2" required>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" id="cartCheckout" name="cart_checkout" class="rounded text-indigo-600 focus:ring-indigo-500">
+                <label for="cartCheckout" class="text-sm font-medium text-gray-700">Checkout entire cart?</label>
+            </div>
+
+            <div id="itemInputs" class="space-y-4 transition-opacity duration-300 ease-in-out">
+                <div>
+                    <label for="checkoutItemId" class="block text-sm font-medium text-gray-700">Item ID</label>
+                    <input type="number" id="checkoutItemId" name="item_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                </div>
+                <div>
+                    <label for="checkoutQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                    <input type="number" id="checkoutQuantity" name="quantity" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                Checkout
+            </button>
+        </form>
+
+        <div id="message" class="mt-6 text-center text-sm font-medium text-gray-600"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('checkoutForm');
+        const userNameInput = document.getElementById('checkoutUsername');
+        const cartCheckoutCheckbox = document.getElementById('cartCheckout');
+        const itemInputs = document.getElementById('itemInputs');
+        const itemIdInput = document.getElementById('checkoutItemId');
+        const quantityInput = document.getElementById('checkoutQuantity');
+        const addressMessageDiv = document.getElementById('message');
+
+        // Toggle item inputs based on checkbox
+        cartCheckoutCheckbox.addEventListener('change', (e) => {
+            console.log(e.target.checked);
+            if (e.target.checked) {
+                console.log("i am here");
+                itemInputs.style.opacity = 0;
+                itemInputs.style.height = 'auto';
+                itemIdInput.required = false;
+                quantityInput.required = false;
+            } else {
+                console.log("i am here2");
+                itemInputs.style.opacity = 1;
+                itemInputs.style.height = 'auto';
+                itemIdInput.required = true;
+                quantityInput.required = true;
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = 'Processing checkout...';
+            messageDiv.classList.remove('text-red-500', 'text-green-500');
+            messageDiv.classList.add('text-gray-600');
+
+            const userName = userNameInput.value.trim();
+            console.log(userName);
+            const cartCheckout = cartCheckoutCheckbox.checked;
+            console.log("i am here2323");
+            let requestBody = {
+                user_name: userName,
+                cart_checkout: cartCheckout
+            };
+
+            if (!cartCheckout) {
+                const itemId = parseInt(itemIdInput.value);
+                const quantity = parseInt(quantityInput.value);
+                
+                if (isNaN(itemId) || isNaN(quantity) || quantity <= 0) {
+                    messageDiv.textContent = 'Please enter valid item details for direct checkout.';
+                    messageDiv.classList.add('text-red-500');
+                    return;
+                }
+
+                requestBody.items = [{
+                    itemId: itemId,
+                    quantity: quantity
+                }];
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                console.log(requestBody);
+                const data = await response.json();
+
+                if (response.ok) {
+                    messageDiv.textContent = `Success: ${data.message}`;
+                    messageDiv.classList.remove('text-gray-600', 'text-red-500');
+                    messageDiv.classList.add('text-green-500');
+                } else {
+                    messageDiv.textContent = `Error: ${data.message || 'Something went wrong.'}`;
+                    messageDiv.classList.remove('text-gray-600', 'text-green-500');
+                    messageDiv.classList.add('text-red-500');
+                }
+
+            } catch (error) {
+                console.error('Checkout failed:', error);
+                messageDiv.textContent = 'An error occurred. Please check the console.';
+                messageDiv.classList.remove('text-gray-600', 'text-green-500');
+                messageDiv.classList.add('text-red-500');
+            }
+        });
+    </script>
+
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Manage Your Delivery Addresses</h1>
+
+        <!-- Add Address Form -->
+        <form id="addAddressForm" class="space-y-4 mb-8 p-6 border border-indigo-200 rounded-lg bg-indigo-50">
+            <h2 class="text-xl font-semibold text-gray-700">Add New Address</h2>
+            
+            <!-- User ID -->
+            <div>
+                <label for="addressUserName" class="block text-sm font-medium text-gray-700">User Name (Mandatory)</label>
+                <input type="text" id="addressUserName" name="user_name" placeholder="e.g., 1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Name -->
+                <div>
+                    <label for="newName" class="block text-sm font-medium text-gray-700">Recipient Name (Mandatory)</label>
+                    <input type="text" id="newName" name="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+                </div>
+                <!-- House Number -->
+                <div>
+                    <label for="newHouseNumber" class="block text-sm font-medium text-gray-700">House/Flat Number (Mandatory)</label>
+                    <input type="text" id="newHouseNumber" name="house_number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+                </div>
+                <!-- Floor -->
+                <div>
+                    <label for="newFloor" class="block text-sm font-medium text-gray-700">Floor</label>
+                    <input type="text" id="newFloor" name="floor" placeholder="e.g., 5th floor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                </div>
+                <!-- Society Name -->
+                <div>
+                    <label for="newSocietyName" class="block text-sm font-medium text-gray-700">Society/Building Name</label>
+                    <input type="text" id="newSocietyName" name="society_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                </div>
+                <!-- Nearby Landmark -->
+                <div>
+                    <label for="newNearbyLandmark" class="block text-sm font-medium text-gray-700">Nearby Landmark</label>
+                    <input type="text" id="newNearbyLandmark" name="nearby_landmark" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                </div>
+                <!-- Sector -->
+                <div>
+                    <label for="newSector" class="block text-sm font-medium text-gray-700">Sector/Area</label>
+                    <input type="text" id="newSector" name="sector" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                </div>
+                <!-- City -->
+                <div>
+                    <label for="newCity" class="block text-sm font-medium text-gray-700">City (Mandatory)</label>
+                    <input type="text" id="newCity" name="city" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+                </div>
+                <!-- State -->
+                <div>
+                    <label for="newState" class="block text-sm font-medium text-gray-700">State (Mandatory)</label>
+                    <input type="text" id="newState" name="state" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+                </div>
+                <!-- Pin Code -->
+                <div>
+                    <label for="newPinCode" class="block text-sm font-medium text-gray-700">Pin Code (Mandatory)</label>
+                    <input type="text" id="newPinCode" name="pin_code" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2" required>
+                </div>
+                <!-- Country -->
+                <div>
+                    <label for="newCountry" class="block text-sm font-medium text-gray-700">Country</label>
+                    <input type="text" id="newCountry" name="country" placeholder="e.g., India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                </div>
+            </div>
+
+            <!-- Geolocation -->
+            <div class="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-4 pt-2">
+                <button type="button" id="getLocationBtn" class="py-2 px-4 border border-indigo-600 rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 transition-colors">
+                    Get My Geolocation
+                </button>
+                <div id="coordsDisplay" class="text-sm font-mono text-gray-600">Lat: 0.0000, Lon: 0.0000</div>
+                <input type="hidden" id="latitude" name="latitude" value="0">
+                <input type="hidden" id="longitude" name="longitude" value="0">
+            </div>
+
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                Save New Address
+            </button>
+        </form>
+
+        <hr class="my-6">
+
+        <!-- Get Addresses Section -->
+        <div class="space-y-4 mb-8">
+            <h2 class="text-xl font-semibold text-gray-700">View/Edit My Addresses</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="getUserName" placeholder="Enter User Name to View Addresses" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2">
+                <button type="button" id="getAddressesBtn" class="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 transition-colors">
+                    Fetch
+                </button>
+            </div>
+        </div>
+
+        <!-- Addresses List -->
+        <div id="addressesList" class="space-y-4">
+            <!-- Addresses will be dynamically added here -->
+        </div>
+
+        <div id="message" class="mt-6 text-center text-sm font-medium text-gray-600"></div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const addAddressForm = document.getElementById('addAddressForm');
+        const getUserNameInput = document.getElementById('getUserName');
+        const getAddressesBtn = document.getElementById('getAddressesBtn');
+        const addressesList = document.getElementById('addressesList');
+        const messageDiv = document.getElementById('message');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const coordsDisplay = document.getElementById('coordsDisplay');
+        const latitudeInput = document.getElementById('latitude');
+        const longitudeInput = document.getElementById('longitude');
+
+        // --- Geolocation Logic ---
+        getLocationBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                addressMessageDiv.textContent = 'Getting your location...';
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    latitudeInput.value = lat;
+                    longitudeInput.value = lon;
+                    coordsDisplay.textContent = `Lat: ${lat.toFixed(6)}, Lon: ${lon.toFixed(6)}`;
+                    addressMessageDiv.textContent = 'Location set!';
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-green-600';
+                }, (error) => {
+                    addressMessageDiv.textContent = 'Error getting location. Defaulting to 0, 0.';
+                    console.error('Geolocation error:', error);
+                });
+            } else {
+                addressMessageDiv.textContent = 'Geolocation is not supported by your browser. Using 0, 0.';
+            }
+        });
+
+        // --- Utility Function to Serialize Form Data ---
+        function getFormData(form) {
+            const data = {};
+            new FormData(form).forEach((value, key) => {
+                // Ensure number fields are parsed correctly
+                if (key === 'latitude' || key === 'longitude') {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value.trim();
+                }
+            });
+            return data;
+        }
+
+        // --- Add Address (POST) ---
+        addAddressForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            addressMessageDiv.textContent = 'Saving address...';
+            addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-gray-600';
+            
+            // Get all data from the form
+            const requestBody = getFormData(addAddressForm);
+            // The Go struct expects "user_name" as an integer (and it's passed as a float from JS input.value)
+            
+
+            console.log('Request Body:', requestBody);
+            // For the Go handler, the 'address' field in the old struct is no longer used,
+            // but we must ensure required fields are present.
+            if (!requestBody.user_name || !requestBody.name || !requestBody.house_number || !requestBody.pin_code || !requestBody.city || !requestBody.state) {
+                 addressMessageDiv.textContent = 'Mandatory fields are missing! Cannot save address.';
+                 addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                 return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/address', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addressMessageDiv.textContent = `Address ID ${data.id} added successfully!`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-green-600';
+                    addAddressForm.reset();
+                    getAddressesBtn.click(); // Refresh the list
+                    latitudeInput.value = 0;
+                    longitudeInput.value = 0;
+                    coordsDisplay.textContent = 'Lat: 0.0000, Lon: 0.0000';
+                } else {
+                    addressMessageDiv.textContent = `Error: ${data.message || 'Failed to add address.'}`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                }
+            } catch (error) {
+                console.error('Add Address failed:', error);
+                addressMessageDiv.textContent = 'An error occurred. Check server logs.';
+                addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+            }
+        });
+
+        // --- Get and Display Addresses (GET) ---
+        getAddressesBtn.addEventListener('click', async () => {
+            const userName = getUserNameInput.value;
+            if (!userName) {
+                addressMessageDiv.textContent = 'Please enter a User Name.';
+                addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                return;
+            }
+            addressMessageDiv.textContent = 'Fetching addresses...';
+            addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-gray-600';
+            addressesList.innerHTML = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/address/${userName}`);
+                
+                if (response.ok) {
+                    const addresses = await response.json();
+                    if (addresses.length > 0) {
+                        addresses.forEach(addr => {
+                            const addrDiv = renderAddressCard(addr);
+                            addressesList.appendChild(addrDiv);
+                            
+                            // Attach event listeners for editing and deleting
+                            addrDiv.querySelector('.edit-btn').addEventListener('click', () => editAddress(addr));
+                            addrDiv.querySelector('.delete-btn').addEventListener('click', () => deleteAddress(addr.id));
+                        });
+                        addressMessageDiv.textContent = `Found ${addresses.length} addresses for User ID ${userId}.`;
+                        addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-green-600';
+                    } else {
+                        addressMessageDiv.textContent = `No addresses found for User ID ${userId}.`;
+                        addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-yellow-600';
+                    }
+                } else {
+                    const error = await response.json();
+                    addressMessageDiv.textContent = `Error fetching addresses: ${error.message || 'Server error.'}`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                }
+            } catch (error) {
+                console.error('Fetch Addresses failed:', error);
+                addressMessageDiv.textContent = 'An error occurred while connecting to the API.';
+                addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+            }
+        });
+
+        // --- Render Address Card ---
+        function renderAddressCard(addr) {
+            const addrDiv = document.createElement('div');
+            addrDiv.className = 'p-4 rounded-xl border border-gray-300 bg-white shadow-sm hover:shadow-md transition-shadow';
+            addrDiv.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <p class="text-lg font-bold text-indigo-700">${addr.name}</p>
+                    <p class="text-sm text-gray-500">ID: ${addr.id}</p>
+                </div>
+                <div class="text-sm text-gray-700 space-y-1">
+                    <p><strong>House/Floor:</strong> ${addr.house_number} ${addr.floor ? `(Floor ${addr.floor})` : ''}</p>
+                    <p><strong>Society/Landmark:</strong> ${addr.society_name || 'N/A'} ${addr.nearby_landmark ? `(Near: ${addr.nearby_landmark})` : ''}</p>
+                    <p><strong>Area:</strong> ${addr.sector || 'N/A'}</p>
+                    <p><strong>Location:</strong> ${addr.city}, ${addr.state} - ${addr.pin_code}, ${addr.country || 'N/A'}</p>
+                    <p class="text-xs font-mono pt-1">Lat: ${addr.latitude.toFixed(6)}, Lon: ${addr.longitude.toFixed(6)}</p>
+                </div>
+                <div class="flex space-x-2 mt-4">
+                    <button class="edit-btn py-1 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium">Edit</button>
+                    <button class="delete-btn py-1 px-3 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-medium">Delete</button>
+                </div>
+            `;
+            return addrDiv;
+        }
+
+        // --- Edit Address (PUT) ---
+        async function editAddress(address) {
+            // Simple prompt for editing, ideally this would open a modal form
+            const newHouseNumber = prompt("Edit House Number (Mandatory):", address.house_number);
+            if (!newHouseNumber) return;
+
+            const newPinCode = prompt("Edit Pin Code (Mandatory):", address.pin_code);
+            if (!newPinCode) return;
+            
+            // Collect other fields (simplified for prompt, but API expects all)
+            const newName = prompt("Edit Recipient Name:", address.name) || address.name;
+            const newFloor = prompt("Edit Floor:", address.floor) || address.floor;
+            const newSocietyName = prompt("Edit Society Name:", address.society_name) || address.society_name;
+            const newCity = prompt("Edit City:", address.city) || address.city;
+            const newState = prompt("Edit State:", address.state) || address.state;
+            const newCountry = prompt("Edit Country:", address.country) || address.country;
+
+            const requestBody = {
+                name: newName,
+                floor: newFloor,
+                house_number: newHouseNumber,
+                society_name: newSocietyName,
+                nearby_landmark: address.nearby_landmark, // Keeping old value
+                sector: address.sector, // Keeping old value
+                pin_code: newPinCode,
+                city: newCity,
+                state: newState,
+                country: newCountry,
+                latitude: address.latitude,
+                longitude: address.longitude
+            };
+            
+            addressMessageDiv.textContent = 'Updating address...';
+            addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-gray-600';
+
+            try {
+                const response = await fetch(`http://localhost:8080/address/${address.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    addressMessageDiv.textContent = `Address ID ${address.id} updated successfully!`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-green-600';
+                    getAddressesBtn.click(); // Refresh the list
+                } else {
+                    const error = await response.json();
+                    addressMessageDiv.textContent = `Error: ${error.message || 'Failed to update address.'}`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                }
+            } catch (error) {
+                console.error('Update Address failed:', error);
+                addressMessageDiv.textContent = 'An error occurred during update. Check server logs.';
+                addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+            }
+        }
+
+        // --- Delete Address (DELETE) ---
+        async function deleteAddress(addressId) {
+            if (!confirm(`Are you sure you want to delete Address ID ${addressId}?`)) return;
+
+            addressMessageDiv.textContent = 'Deleting address...';
+            addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-gray-600';
+
+            try {
+                const response = await fetch(`http://localhost:8080/address/${addressId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    addressMessageDiv.textContent = `Address ID ${addressId} deleted successfully!`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-green-600';
+                    getAddressesBtn.click(); // Refresh the list
+                } else {
+                    const error = await response.json();
+                    addressMessageDiv.textContent = `Error: ${error.message || 'Failed to delete address.'}`;
+                    addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+                }
+            } catch (error) {
+                console.error('Delete Address failed:', error);
+                addressMessageDiv.textContent = 'An error occurred during deletion. Check server logs.';
+                addressMessageDiv.className = 'mt-6 text-center text-sm font-medium text-red-600';
+            }
+        }
+    </script>
+</body>
+</html>

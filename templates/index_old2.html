@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HireMe - User Career Dashboard</title>
+    <!-- Use Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        input:required:invalid {
+            border-color: #ef4444; /* Tailwind red-500 */
+        }
+        .full-screen-viewer {
+            width: 100%;
+            height: 600px; 
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen py-8">
+
+    <div class="container mx-auto px-4 max-w-5xl space-y-8">
+        
+        <header class="flex justify-between items-center mb-6 p-4 bg-white rounded-2xl shadow-xl">
+             <h1 class="text-4xl font-extrabold text-indigo-700 tracking-tight">HireMe Career Portal</h1>
+             <button id="logoutBtn" onclick="logoutUser()" class="py-2 px-5 bg-red-600 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-red-700 transition duration-300 hidden">
+                Logout
+            </button>
+        </header>
+
+        <!-- Global Message Display -->
+        <div id="messageBox" class="p-4 bg-gray-100 rounded-lg text-center text-sm font-medium text-gray-600 shadow-inner">
+            Checking authentication status...
+        </div>
+
+        <!-- 1. AUTHENTICATION SCREEN (Login/Signup) -->
+        <div id="authScreen" class="max-w-xl mx-auto space-y-10">
+            <div class="p-8 text-center bg-indigo-50 rounded-xl border border-indigo-300 shadow-md">
+                <h2 class="text-3xl font-bold text-indigo-700 mb-2">Login or Sign Up</h2>
+                <p class="text-gray-600 text-lg">Access your profile and resume tools.</p>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div class="p-8 border border-gray-200 rounded-xl bg-gray-50 space-y-6 shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-800">Log In</h3>
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter your username" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm sm:text-base p-3 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm sm:text-base p-3 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-300">
+                        Log In
+                    </button>
+                </form>
+
+                <hr class="my-6 border-gray-300">
+
+                <div class="text-center">
+                    <p class="text-sm text-gray-600 mb-3">Don't have an account?</p>
+                    <button type="button" id="toggleSignupBtn" class="py-2 px-6 border border-green-600 text-sm font-semibold rounded-full text-green-600 hover:bg-green-100 transition duration-300">
+                        Show Signup Form
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIGNUP FORM (Hidden by default) -->
+            <div id="signupContainer" class="p-8 border border-green-300 rounded-xl bg-green-50 space-y-6 shadow-lg hidden">
+                <h3 class="text-2xl font-bold text-green-700">New User Signup</h3>
+                <form id="signupForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="signupUsername" name="user_name" placeholder="Username" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="password" id="signupPassword" name="password" placeholder="Password" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="text" id="signupFirstName" name="firstName" placeholder="First Name" class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm">
+                        <input type="text" id="signupLastName" name="lastName" placeholder="Last Name" class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm">
+                        <input type="tel" id="signupMobileNumber" name="mobileNumber" placeholder="Mobile Number (Mandatory)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                        <input type="email" id="signupEmail" name="email" placeholder="Email (Mandatory)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm p-3" required>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-semibold text-white bg-green-600 hover:bg-green-700 transition duration-300">
+                        Sign Up & Log In
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. USER DASHBOARD SCREEN -->
+        <div id="dashboardScreen" class="space-y-8 hidden">
+            
+            <!-- User Greeting Header -->
+            <div class="p-8 text-center bg-white rounded-2xl border border-indigo-300 shadow-xl">
+                <h2 class="text-3xl font-extrabold text-gray-800 mb-2">Your Career Dashboard</h2>
+                <p class="text-gray-600 text-lg">Track your resume activity and explore companies.</p>
+                <p class="text-sm font-medium text-indigo-600 mt-2">Logged in as: <span id="currentUsernameDisplay"></span> <span id="dashboardUserId" class="text-gray-500"></span></p>
+            </div>
+
+            <!-- Main Status Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- 1. Resume Status Card -->
+                <div class="p-6 bg-yellow-50 rounded-xl border border-yellow-300 shadow-md">
+                    <h3 class="text-xl font-bold text-yellow-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                            <path fill-rule="evenodd" d="M19.5 7.5a3 3 0 0 0-3-3h-8.25a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9ZM8.25 6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V6Z" clip-rule="evenodd" />
+                            <path d="M16.5 7.5h-9a.75.75 0 0 0-.75.75v6a.75.75 0 0 0 .75.75h9a.75.75 0 0 0 .75-.75v-6a.75.75 0 0 0-.75-.75Z" />
+                        </svg>
+                        Resume Status
+                    </h3>
+                    <div id="resumeStatusContent" class="text-sm text-gray-600 space-y-2">
+                        <p>Status: <span id="currentResumeStatus" class="font-bold text-red-600">Not Uploaded</span></p>
+                        <p>File: <span id="currentFilenameSummary">N/A</span></p>
+                        <p>Last Update: <span id="currentUploadTimeSummary">N/A</span></p>
+                    </div>
+                </div>
+
+                <!-- 2. Profile Views Counter (Simulated) -->
+                <div class="p-6 bg-white rounded-xl border border-gray-200 shadow-md">
+                    <h3 class="text-xl font-bold text-gray-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2 text-green-600">
+                            <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                            <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.972 0 9.187 3.223 10.675 7.697a1.75 1.75 0 0 1 0 1.056c-1.487 4.475-5.702 7.697-10.675 7.697-4.973 0-9.188-3.223-10.675-7.697a1.75 1.75 0 0 1 0-1.056ZM12 17.25a5.25 5.25 0 1 0 0-10.5 5.25 5.25 0 0 0 0 10.5Z" clip-rule="evenodd" />
+                        </svg>
+                        Total Profile Views
+                    </h3>
+                    <p class="text-5xl font-extrabold text-green-600">
+                        <span id="viewCount">24</span>
+                    </p>
+                    <p class="text-sm text-gray-500 mt-2">Companies checked your profile this month (Simulated).</p>
+                </div>
+
+                <!-- 3. AI Summary Card (Replaces Companies Visited) -->
+                <div class="p-6 bg-indigo-50 rounded-xl border border-indigo-300 shadow-md">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                            <path d="M12.75 12.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                            <path fill-rule="evenodd" d="M19.03 8.22a.75.75 0 0 0 0 1.06l-6.22 6.22a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.06.75.75 0 0 1 1.06 0l1.72 1.72 5.69-5.69a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+                            <path fill-rule="evenodd" d="M8.686 1.734A9 9 0 0 0 1.947 8.35c.427 1.062 1.084 2.115 1.97 3.01.62.63.754 1.5.392 2.216l-.804 1.554a.75.75 0 0 0 1.087 1.026l1.554-.804c.716-.362 1.586-.228 2.216.392.895.886 1.948 1.543 3.01 1.97A9 9 0 0 0 20.265 8.686a9 9 0 0 0-8.58-6.952.75.75 0 0 0-.689.673Z" clip-rule="evenodd" />
+                        </svg>
+                        AI Resume Summary
+                    </h3>
+                    <div id="aiAnalysisResult" class="text-gray-700 text-sm space-y-3">
+                        <p class="font-medium text-gray-500" id="aiStatus">Status: Awaiting upload.</p>
+                        <button id="analyzeResumeBtn" onclick="analyzeResumeWithAI()" class="mt-2 w-full py-2 px-4 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors shadow-md text-sm disabled:opacity-50" disabled>
+                            Analyze Resume (AI)
+                        </button>
+                        <div id="summaryContent" class="mt-4 text-sm bg-indigo-100 p-3 rounded-lg hidden">
+                            <!-- Summary appears here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-8 border-gray-200">
+
+            <!-- RESUME MANAGER SECTION -->
+            <div id="resumeManagerSection" class="p-8 bg-white rounded-2xl shadow-xl border border-yellow-400/50 space-y-6">
+                <h3 class="text-2xl font-bold text-yellow-800 border-b pb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 mr-2">
+                        <path fill-rule="evenodd" d="M19.5 7.5a3 3 0 0 0-3-3h-8.25a3 3 0 0 0-3 3v9a3 3 0 0 0 3 3h8.25a3 3 0 0 0 3-3v-9Z" clip-rule="evenodd" />
+                        <path d="M8.25 6a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75V6Z" />
+                    </svg>
+                    Resume Upload & Viewer
+                </h3>
+                
+                <div id="currentResumeInfo" class="space-y-4 p-5 border border-gray-200 rounded-xl bg-white shadow-sm hidden">
+                    <h4 class="text-xl font-semibold text-gray-700">Preview & Download</h4>
+                    <div class="flex space-x-4">
+                        <button id="viewResumeBtn" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-150 hidden">
+                            View Resume in Browser
+                        </button>
+                        <button id="downloadResumeBtn" class="py-2 px-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg shadow-md transition duration-150 hidden">
+                            Download File
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Upload Form (Always visible as the fallback/primary action) -->
+                <form id="resumeUploadForm" class="space-y-4 p-5 border border-yellow-200 rounded-xl bg-yellow-50 shadow-inner">
+                    <h4 class="text-xl font-semibold text-gray-700">Upload New Resume (.PDF, .DOC, .DOCX)</h4>
+                    <label for="resumeFile" class="block text-sm font-medium text-gray-700">Select File (Max 5MB):</label>
+                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm">
+                    
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition duration-150">
+                        Upload & Replace Current Resume
+                    </button>
+                </form>
+
+                <!-- Viewer Section (Hidden by default, shown when 'View' is clicked) -->
+                <div id="resumeViewerContainer" class="hidden">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Resume Preview (Streamed from Server):</p>
+                    <embed id="resumeViewer" src="" class="full-screen-viewer" type="application/pdf">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080';
+        
+        // --- GLOBAL STATE ---
+        let currentUserId = localStorage.getItem('currentUserId') ? parseInt(localStorage.getItem('currentUserId')) : null;
+        let currentUsername = localStorage.getItem('currentUsername') || null;
+        // Global state to hold the uploaded file data for immediate analysis
+        window.lastUploadedBase64 = null;
+        window.lastUploadedMimeType = null;
+
+
+        const messageBox = document.getElementById('messageBox');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authScreen = document.getElementById('authScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const signupContainer = document.getElementById('signupContainer');
+        
+        // Global Message Function
+        function showMessage(text, type = 'info') {
+            messageBox.textContent = text;
+            messageBox.className = 'p-4 rounded-lg text-center text-sm font-medium shadow-inner';
+            if (type === 'success') messageBox.classList.add('bg-green-100', 'text-green-800');
+            else if (type === 'error') messageBox.classList.add('bg-red-100', 'text-red-800');
+            else messageBox.classList.add('bg-blue-100', 'text-blue-800');
+        };
+
+        // --- AUTH LOGIC ---
+
+        function checkAuth() {
+            if (currentUserId && currentUsername) {
+                authScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+                logoutBtn.classList.remove('hidden');
+                
+                // Initialize Dashboard
+                document.getElementById('currentUsernameDisplay').textContent = currentUsername;
+                document.getElementById('dashboardUserId').textContent = `(ID: ${currentUserId})`;
+                updateDashboardResumeSection(currentUserId);
+            } else {
+                authScreen.classList.remove('hidden');
+                dashboardScreen.classList.add('hidden');
+                logoutBtn.classList.add('hidden');
+                showMessage('Please sign up or log in to continue.', 'info');
+            }
+        }
+
+        function loginUser(id, username) {
+            if (isNaN(parseInt(id)) || parseInt(id) <= 0) return showMessage('Invalid User ID provided.', 'error');
+            
+            localStorage.setItem('currentUserId', id);
+            localStorage.setItem('currentUsername', username);
+            currentUserId = id;
+            currentUsername = username;
+            showMessage(`Welcome back, ${username}! Logged in successfully.`, 'success');
+            checkAuth();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('currentUserId');
+            localStorage.removeItem('currentUsername');
+            currentUserId = null;
+            currentUsername = null;
+            // Clear analysis data on logout
+            window.lastUploadedBase64 = null;
+            window.lastUploadedMimeType = null;
+            checkAuth();
+        }
+
+        function toggleSignupForm() {
+            const isHidden = signupContainer.classList.contains('hidden');
+            signupContainer.classList.toggle('hidden', !isHidden);
+            document.getElementById('toggleSignupBtn').textContent = isHidden ? 'Hide Signup Form' : 'Show Signup Form';
+        }
+        document.getElementById('toggleSignupBtn').addEventListener('click', toggleSignupForm);
+
+        // --- API HANDLERS (Simplified for Monolithic File) ---
+
+        // Helper Function to get form data
+        function getAuthFormData(formId) {
+            const form = document.getElementById(formId);
+            const data = {};
+            new FormData(form).forEach((value, key) => {
+                data[key] = value.trim();
+            });
+            // Ensure Go struct names match:
+            data.user_name = data.user_name || data.userName;
+            data.mobileNumber = data.mobileNumber || data.mobile_number;
+            return data;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('Attempting login...', 'info');
+            const user_name = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_name: user_name, password: password })
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    loginUser(data.user_id, user_name); // Assume backend returns user_id
+                } else {
+                    showMessage(`Login Error: ${data.message || 'Invalid credentials or server error.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                showMessage('Network error during login. Check Go server and CORS.', 'error');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showMessage('Signing up user...', 'info');
+            const requestBody = getAuthFormData('signupForm');
+            
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    loginUser(data.id, requestBody.user_name); // Assume backend returns new user ID
+                } else {
+                    showMessage(`Signup Error: ${data.message || 'Failed to sign up. Username or email may be taken.'}`, 'error');
+                }
+            } catch (error) {
+                console.error('Signup failed:', error);
+                showMessage('Network error during signup. Check Go server and CORS.', 'error');
+            }
+        });
+
+        // --- DASHBOARD RESUME LOGIC ---
+        
+        async function updateDashboardResumeSection(userID) {
+            const statusSpan = document.getElementById('currentResumeStatus');
+            const filenameSpan = document.getElementById('currentFilenameSummary');
+            const uploadTimeSpan = document.getElementById('currentUploadTimeSummary');
+            const infoDiv = document.getElementById('currentResumeInfo');
+            const viewBtn = document.getElementById('viewResumeBtn');
+            const downloadBtn = document.getElementById('downloadResumeBtn');
+            const viewerContainer = document.getElementById('resumeViewerContainer');
+            const analyzeBtn = document.getElementById('analyzeResumeBtn');
+            const aiStatus = document.getElementById('aiStatus');
+
+
+            if (!userID || !statusSpan) return;
+
+            statusSpan.textContent = "Checking...";
+            infoDiv.classList.add('hidden'); // Hide controls while checking
+            viewerContainer.classList.add('hidden');
+            analyzeBtn.disabled = true; // Disable analysis until file status is known
+            aiStatus.textContent = "Status: Check resume upload status.";
+            document.getElementById('summaryContent').classList.add('hidden'); // Hide summary
+
+            try {
+                const response = await fetch(`${API_URL}/resume/${userID}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Resume found
+                    statusSpan.textContent = "Uploaded";
+                    statusSpan.classList.replace('text-red-600', 'text-green-600');
+                    filenameSpan.textContent = data.filename;
+                    uploadTimeSpan.textContent = data.uploaded_at ? new Date(data.uploaded_at).toLocaleDateString() : 'N/A';
+                    
+                    infoDiv.classList.remove('hidden'); // SHOW Preview/Download controls
+                    viewBtn.classList.remove('hidden');
+                    downloadBtn.classList.remove('hidden');
+
+                    analyzeBtn.disabled = false; // Enable analysis button
+                    aiStatus.textContent = "Status: Ready for analysis.";
+
+                    const downloadUrl = API_URL + data.download_url;
+                    
+                    viewBtn.onclick = () => {
+                        if (viewerContainer.classList.contains('hidden')) {
+                            document.getElementById('resumeViewer').src = downloadUrl;
+                            viewerContainer.classList.remove('hidden');
+                            viewBtn.textContent = 'Hide Preview';
+                        } else {
+                            viewerContainer.classList.add('hidden');
+                            viewBtn.textContent = 'View Resume in Browser';
+                        }
+                    };
+                    downloadBtn.onclick = () => window.open(downloadUrl, '_blank');
+
+                } else {
+                    // Resume Not Found (404) or API Error
+                    statusSpan.textContent = "Not Uploaded";
+                    statusSpan.classList.replace('text-green-600', 'text-red-600');
+                    filenameSpan.textContent = "None";
+                    uploadTimeSpan.textContent = "N/A";
+                    infoDiv.classList.add('hidden');
+                    viewerContainer.classList.add('hidden');
+                    analyzeBtn.disabled = true;
+                    aiStatus.textContent = "Status: Awaiting upload.";
+                }
+            } catch (error) {
+                console.error('Resume status check error:', error);
+                statusSpan.textContent = "Error";
+                statusSpan.classList.replace('text-green-600', 'text-red-600');
+                showMessage('Could not connect to the resume API.', 'error');
+            }
+        }
+
+    async function analyzeResumeWithAI() {
+        // FIX: The currentUserId is now a global variable defined in index.html, 
+        // resolving the 'ReferenceError'.
+        if (!currentUserId) {
+            showMessage('Please log in to analyze your resume.', 'error');
+            return;
+        }
+
+        const analyzeBtn = document.getElementById('analyzeResumeBtn');
+        const summaryOutput = document.getElementById('summaryContent');
+        
+        // Disable button and show loading state
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = "Analyzing...";
+        summaryOutput.innerHTML = `<p class="text-blue-600">Running analysis via local API...</p>`;
+        summaryOutput.classList.remove('hidden');
+        console.log("Starting analysis for UserID:", currentUserId);
+        // --- LOCAL API CALL SETUP ---
+        // 1. Build the minimal payload (UserID is mandatory for the Go endpoint)
+        const requestBody = { user_id: parseInt(currentUserId) };
+        
+        // 2. Define the local endpoint URL
+        const apiUrl = `${API_URL}/resume/analyze`; 
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const data = await response.json();
+
+           if (response.ok) {
+                // The Go backend mock returns data.Summary
+                summaryOutput.innerHTML = `<pre class="whitespace-pre-wrap font-sans text-sm">${data.summary}</pre>`;
+                summaryOutput.classList.remove('hidden');
+                showMessage(`Analysis successful: ${data.Message}`, 'success');
+            } else if (response.status === 404) {
+                 summaryOutput.innerHTML = `<p class="text-red-600">**Error:** Resume not found on server. Please upload your resume first!</p>`;
+                 showMessage('Resume file not found for analysis.', 'error');
+            } else {
+                summaryOutput.innerHTML = `<p class="text-red-600">Analysis failed: ${data.error || data.message || 'Unknown server error.'}</p>`;
+                showMessage('Analysis failed. Check dashboard for details.', 'error');
+            }
+        } catch (error) {
+            console.error('Local Analysis API Error:', error);
+            summaryOutput.innerHTML = `<p class="text-red-600">Network error during analysis. Check console and Go server logs.</p>`;
+            showMessage('Network error during analysis.', 'error');
+        } finally {
+            analyzeBtn.textContent = "Analyze Resume (AI)";
+            analyzeBtn.disabled = false;
+        }
+    };
+
+        // --- NEW AI PARSING LOGIC ---
+
+        // async function analyzeResumeWithAI() {
+        //     const aiStatus = document.getElementById('aiStatus');
+        //     const analyzeBtn = document.getElementById('analyzeResumeBtn');
+        //     const summaryContent = document.getElementById('summaryContent');
+        //     const resumeFile = document.getElementById('resumeFile');
+            
+        //     // Re-read file content if it was just uploaded and is in the input buffer
+        //     let base64Data = window.lastUploadedBase64;
+        //     let mimeType = window.lastUploadedMimeType;
+        //     let file = resumeFile.files[0];
+        //     console.log("Using file from input:", file);
+        //     if (!base64Data && file) {
+        //          // Try reading the file again if button was clicked after initial page load
+        //          showMessage("Re-reading file for analysis. Please wait...", 'info');
+                 
+        //          const reader = new FileReader();
+        //          reader.onload = function(event) {
+        //             window.lastUploadedBase64 = event.target.result.split(',')[1];
+        //             window.lastUploadedMimeType = file.type;
+        //             analyzeResumeWithAI(); // Recurse now that data is loaded
+        //          };
+        //          reader.readAsDataURL(file);
+        //          return;
+        //     }
+
+        //     if (!base64Data) {
+        //         aiStatus.textContent = "Error: Cannot analyze. File content not in memory. Please re-upload.";
+        //         showMessage("Analysis failed. File content not found in local memory.", 'error');
+        //         return;
+        //     }
+
+        //     analyzeBtn.disabled = true;
+        //     analyzeBtn.textContent = "Analyzing...";
+        //     aiStatus.textContent = "Status: Sending to Gemini API...";
+        //     summaryContent.classList.add('hidden');
+
+
+        //     const systemPrompt = "You are a professional recruiter and resume analyst. Analyze the provided resume document. Your output MUST be a concise summary (max 100 words) followed by bullet points for key data. Extract the candidate's core technology stack, project experience count, and estimated years of experience.";
+            
+        //     // Build the multi-modal request payload
+        //     const payload = {
+        //         contents: [
+        //             {
+        //                 parts: [
+        //                     { text: systemPrompt },
+        //                     {
+        //                         inlineData: {
+        //                             mimeType: mimeType,
+        //                             data: base64Data
+        //                         }
+        //                     }
+        //                 ]
+        //             }
+        //         ],
+        //     };
+            
+        //     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=`; // API Key is provided by Canvas runtime
+
+        //     try {
+        //         const response = await fetch(apiUrl, {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify(payload)
+        //         });
+                
+        //         const result = await response.json();
+                
+        //         if (response.ok && result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+        //             const summary = result.candidates[0].content.parts[0].text;
+                    
+        //             aiStatus.textContent = "Status: Analysis Complete.";
+        //             summaryContent.innerHTML = `<p class="font-bold mb-2 text-indigo-700">Recruiter Summary:</p><div class="whitespace-pre-wrap">${summary}</div>`;
+        //             summaryContent.classList.remove('hidden');
+        //             showMessage("AI analysis successful!", 'success');
+        //         } else {
+        //             throw new Error(result.error?.message || 'API returned empty response.');
+        //         }
+
+        //     } catch (error) {
+        //         console.error("Gemini Analysis Error:", error);
+        //         aiStatus.textContent = "Error: Failed to process resume (API/File size error).";
+        //         summaryContent.innerHTML = `<p class="text-red-700">Analysis failed. Check console for details. (Ensure file is under 4MB.)</p>`;
+        //         summaryContent.classList.remove('hidden');
+        //         showMessage("AI analysis failed. See dashboard for details.", 'error');
+        //     } finally {
+        //         analyzeBtn.textContent = "Analyze Resume (AI)";
+        //         analyzeBtn.disabled = false;
+        //     }
+        // }
+
+        // --- UPLOAD LOGIC ---
+
+        document.getElementById('resumeUploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('resumeFile');
+            const file = fileInput.files[0];
+            
+            if (!file || !currentUserId) return showMessage('Select a file.', 'error');
+            if (file.size > 4 * 1024 * 1024) return showMessage('File size limit is 4MB for analysis.', 'error');
+
+            // Clear previous AI state
+            window.lastUploadedBase64 = null;
+            window.lastUploadedMimeType = null;
+            document.getElementById('analyzeResumeBtn').disabled = true;
+            document.getElementById('aiStatus').textContent = "Status: Reading file...";
+
+            const reader = new FileReader();
+            reader.onload = async function (event) {
+                const base64Uri = event.target.result;
+                const base64Data = base64Uri.split(',')[1];
+                
+                // Store file data globally for immediate analysis
+                window.lastUploadedBase64 = base64Data;
+                window.lastUploadedMimeType = file.type;
+
+                const payload = {
+                    user_id: parseInt(currentUserId),
+                    filename: file.name,
+                    mime_type: file.type,
+                    base64_data: base64Uri // Send the full URI to the Go API (assuming it handles splitting)
+                };
+
+                showMessage('Uploading resume to server...', 'info');
+                try {
+                    const response = await fetch(`${API_URL}/resume/${currentUserId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        showMessage(`Resume uploaded successfully!`, 'success');
+                        updateDashboardResumeSection(currentUserId);
+                        // Enable analysis button after successful upload
+                        document.getElementById('analyzeResumeBtn').disabled = false;
+                        document.getElementById('aiStatus').textContent = "Status: Uploaded, Ready for analysis.";
+                        fileInput.value = ''; // Clear file input element
+                    } else {
+                        const data = await response.json();
+                        showMessage(`Upload failed: ${data.message || 'Unknown error'}`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Resume Upload API Error:', error);
+                    showMessage('Network error during upload.', 'error');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Initial setup run
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>

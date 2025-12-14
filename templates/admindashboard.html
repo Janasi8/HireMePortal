@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 2rem; }
+        .container { max-width: 800px; margin: auto; background: #fff; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f7f7f7; }
+        .danger { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User List</h1>
+        <p>Displaying all users from the database.</p>
+        console.log("Admin Dashboard Loaded");
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th class="danger">Password (Insecure)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Users}}
+                console.log("User: {{.UserName}}");
+                console.log("User: {{.Password}}");
+                <tr>
+                    <td>{{.UserName}}</td>
+                    <td class="danger">{{.Password}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        <br>
+        <a href="/admin">Logout</a>
+    </div>
+</body>
+</html>
