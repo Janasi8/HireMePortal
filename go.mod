@@ -1,6 +1,6 @@
 module achievesomethingbro
 
-go 1.25.1
+go 1.24.1
 
 require (
 	github.com/elastic/go-elasticsearch/v8 v8.19.0
