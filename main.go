@@ -54,18 +54,22 @@ func appendTodos(c *gin.Context) {
 
 func main() {
 
-	// DB & Elasticsearch intentionally kept in DEMO MODE
+	// Initialize DB & Elasticsearch (keep as-is)
 	dbpg.IntializeDB()
 	dbpg.InitElasticsearch()
 
 	router := gin.Default()
 
-	// Serve HTML templates
-	router.LoadHTMLGlob("templates/*")
+	// SAFELY load templates (prevents Render crash)
+	if _, err := os.Stat("templates"); err == nil {
+		router.LoadHTMLGlob("templates/*")
+	}
 
-	// Home page
+	// Home route
 	router.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "HireMePortal API is running",
+		})
 	})
 
 	// Demo APIs
@@ -73,13 +77,13 @@ func main() {
 	router.GET("/todos/:id", getTodoById)
 	router.POST("/todos", appendTodos)
 
-	// Register your existing APIs (login/signup/etc)
+	// Register existing APIs (login/signup/etc.)
 	signupapiv1.InitializeAPI()
 
-	// Dynamic PORT (required for deployment)
+	// Render-compatible dynamic PORT
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "8080"
 	}
 
 	router.Run(":" + port)
