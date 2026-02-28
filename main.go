@@ -26,6 +26,16 @@ func main() {
 
 	// ✅ Create Gin router
 	router := gin.Default()
+	// Serve static files
+	router.Static("/static", "./static")
+
+	// Load HTML templates
+	router.LoadHTMLGlob("templates/*")
+
+	// Root route
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(200, "index.html", nil)
+	})
 
 	// ✅ Initialize all APIs with router
 	signupapiv1.InitializeAPI(router)
