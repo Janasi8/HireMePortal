@@ -3,10 +3,15 @@ package main
 import (
 	signupapiv1 "achievesomethingbro/appapi"
 	dbpg "achievesomethingbro/appdb"
+	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // ---------------- SAMPLE DEMO DATA ----------------
@@ -23,7 +28,7 @@ var todos = []todo{
 	{Id: "3", BookName: "Punam ko time se uthao", Completed: false},
 }
 
-// ---------------- DEMO API HANDLERS ----------------
+// ---------------- API HANDLERS ----------------
 
 func getTodos(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
@@ -54,37 +59,92 @@ func appendTodos(c *gin.Context) {
 
 func main() {
 
-	// Initialize DB & Elasticsearch (keep as-is)
+	// Load env (safe)
+	_ = godotenv.Load()
+
+	// Init DB & ES
 	dbpg.IntializeDB()
 	dbpg.InitElasticsearch()
 
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"https://janasi8.github.io",
+			"http://localhost:8080",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
-	// SAFELY load templates (prevents Render crash)
-	if _, err := os.Stat("templates"); err == nil {
-		router.LoadHTMLGlob("templates/*")
-	}
+	// ---------------- 🔥 ADD CORS HERE ----------------
 
-	// Home route
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{
+			"https://janasi8.github.io", // frontend domain
+			"http://localhost:3000",     // optional local testing
+			"http://localhost:8080",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
+	// ---------------- LOAD HTML TEMPLATES ----------------
+
+	router.LoadHTMLGlob("templates/*")
+
+	// Static files
+	router.Static("/static", "./static")
+
+	// ---------------- UI ROUTES ----------------
+
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "HireMePortal API is running",
-		})
+		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
-	// Demo APIs
-	router.GET("/todos", getTodos)
-	router.GET("/todos/:id", getTodoById)
-	router.POST("/todos", appendTodos)
+	router.GET("/dashboard", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "dashboard.html", nil)
+	})
 
-	// Register existing APIs (login/signup/etc.)
-	signupapiv1.InitializeAPI()
+	// ---------------- API ROUTES ----------------
 
-	// Render-compatible dynamic PORT
+	api := router.Group("/api")
+	{
+		api.GET("/todos", getTodos)
+		api.GET("/todos/:id", getTodoById)
+		api.POST("/todos", appendTodos)
+	}
+
+	// ---------------- AUTH / OTHER ROUTES ----------------
+
+	signupapiv1.InitializeAPI(router)
+
+	// ---------------- FALLBACK ----------------
+
+	router.NoRoute(func(c *gin.Context) {
+
+		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "API route not found",
+			})
+			return
+		}
+
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	// ---------------- SERVER ----------------
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
+	log.Println("🚀 Server running on port " + port)
 	router.Run(":" + port)
 }

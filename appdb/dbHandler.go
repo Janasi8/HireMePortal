@@ -6,22 +6,46 @@ import (
 	"os"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var Db *sql.DB
 
-// ==================== DATABASE (MOCK / DEMO MODE) ====================
+// 🔴 HARD-CODED DSN (to avoid env issues)
+var dsn = "root:Jaiswal123@tcp(127.0.0.1:3306)/hiremeportal?parseTime=true"
 
-// ConnectDB is a MOCK function for demo purposes
+// ==================== DATABASE ====================
+
+// ConnectDB creates or reuses a single DB connection
 func ConnectDB() (*sql.DB, error) {
-	log.Println("Mock DB connection used (demo mode)")
-	return nil, nil
+
+	// Reuse connection if already exists
+	if Db != nil {
+		return Db, nil
+	}
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+
+	// Test connection
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	log.Println("✅ MySQL connected successfully")
+	Db = db
+	return Db, nil
 }
 
-// IntializeDB does nothing in demo mode
+// IntializeDB initializes DB at app start
 func IntializeDB() {
-	log.Println("Database initialization skipped (demo mode)")
-	return
+	db, err := ConnectDB()
+	if err != nil {
+		log.Fatal("❌ Database connection failed:", err)
+	}
+	Db = db
 }
 
 // ==================== ELASTICSEARCH (OPTIONAL) ====================
@@ -31,7 +55,7 @@ var EsClient *elasticsearch.Client
 func InitElasticsearch() {
 	esURL := os.Getenv("ELASTICSEARCH_URL")
 	if esURL == "" {
-		log.Println("Elasticsearch disabled (demo mode)")
+		log.Println("ℹ️ Elasticsearch disabled")
 		return
 	}
 
@@ -57,6 +81,6 @@ func InitElasticsearch() {
 		return
 	}
 
-	log.Println("Elasticsearch connected (optional)")
+	log.Println("✅ Elasticsearch connected")
 	EsClient = client
 }
